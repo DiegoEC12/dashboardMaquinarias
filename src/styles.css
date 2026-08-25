@@ -1,0 +1,200 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Maquinarias — Mystery Shopping design system.
+ * Corporate red + graphite, semaphore accents, light institutional canvas.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-graphite: var(--graphite);
+  --color-surface: var(--surface);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo", "Manrope", ui-sans-serif, sans-serif;
+}
+
+:root {
+  --radius: 0.875rem;
+  --background: oklch(0.977 0.002 286);
+  --foreground: oklch(0.26 0.008 286);
+  --surface: oklch(0.955 0.003 286);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.26 0.008 286);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.26 0.008 286);
+  --primary: oklch(0.545 0.2 25.5);
+  --primary-foreground: oklch(0.99 0 0);
+  --graphite: oklch(0.35 0.008 286);
+  --secondary: oklch(0.94 0.004 286);
+  --secondary-foreground: oklch(0.3 0.008 286);
+  --muted: oklch(0.95 0.003 286);
+  --muted-foreground: oklch(0.53 0.01 286);
+  --accent: oklch(0.94 0.02 25);
+  --accent-foreground: oklch(0.42 0.16 25.5);
+  --destructive: oklch(0.545 0.2 25.5);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.004 286);
+  --input: oklch(0.9 0.004 286);
+  --ring: oklch(0.545 0.2 25.5);
+  --good: oklch(0.66 0.16 149);
+  --warn: oklch(0.79 0.15 82);
+  --bad: oklch(0.6 0.21 27);
+  --chart-1: oklch(0.545 0.2 25.5);
+  --chart-2: oklch(0.35 0.008 286);
+  --chart-3: oklch(0.66 0.16 149);
+  --chart-4: oklch(0.79 0.15 82);
+  --chart-5: oklch(0.6 0.09 250);
+  --sidebar: oklch(0.99 0 0);
+  --sidebar-foreground: oklch(0.26 0.008 286);
+  --sidebar-primary: oklch(0.545 0.2 25.5);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0.003 286);
+  --sidebar-accent-foreground: oklch(0.26 0.008 286);
+  --sidebar-border: oklch(0.9 0.004 286);
+  --sidebar-ring: oklch(0.545 0.2 25.5);
+
+  --gradient-brand: linear-gradient(135deg, oklch(0.545 0.2 25.5), oklch(0.44 0.17 20));
+  --gradient-graphite: linear-gradient(140deg, oklch(0.32 0.008 286), oklch(0.24 0.01 286));
+  --shadow-card: 0 1px 2px oklch(0.26 0.008 286 / 0.05), 0 8px 24px -16px oklch(0.26 0.008 286 / 0.35);
+  --shadow-lift: 0 12px 40px -18px oklch(0.26 0.008 286 / 0.45);
+  --transition-smooth: 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dark {
+  --background: oklch(0.19 0.006 286);
+  --foreground: oklch(0.97 0.002 286);
+  --surface: oklch(0.23 0.006 286);
+  --card: oklch(0.24 0.006 286);
+  --card-foreground: oklch(0.97 0.002 286);
+  --popover: oklch(0.24 0.006 286);
+  --popover-foreground: oklch(0.97 0.002 286);
+  --primary: oklch(0.62 0.2 25.5);
+  --primary-foreground: oklch(0.99 0 0);
+  --graphite: oklch(0.8 0.008 286);
+  --secondary: oklch(0.29 0.008 286);
+  --secondary-foreground: oklch(0.97 0.002 286);
+  --muted: oklch(0.29 0.008 286);
+  --muted-foreground: oklch(0.72 0.01 286);
+  --accent: oklch(0.32 0.04 25);
+  --accent-foreground: oklch(0.95 0.02 25);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.62 0.2 25.5);
+  --sidebar: oklch(0.24 0.006 286);
+  --sidebar-foreground: oklch(0.97 0.002 286);
+  --sidebar-border: oklch(1 0 0 / 12%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@utility panel {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  transition:
+    box-shadow var(--transition-smooth),
+    transform var(--transition-smooth);
+}
+
+@utility panel-interactive {
+  cursor: pointer;
+  &:hover {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
+  }
+}
+
+@utility brand-gradient {
+  background-image: var(--gradient-brand);
+}
+
+@utility graphite-gradient {
+  background-image: var(--gradient-graphite);
+}
+
+@utility rise-in {
+  animation: rise-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility grow-bar {
+  animation: grow-bar 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: left center;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes grow-bar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
