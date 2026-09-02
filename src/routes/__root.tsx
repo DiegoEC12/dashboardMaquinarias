@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { FilterProvider } from "@/lib/mystery/filter-context";
+import { AppSidebar } from "@/components/mystery/app-sidebar";
 
 function NotFoundComponent() {
   return (
@@ -129,8 +131,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <FilterProvider>
+        <div className="flex min-h-screen w-full flex-col lg:flex-row">
+          <AppSidebar />
+          <main className="min-w-0 flex-1">
+            <Outlet />
+          </main>
+        </div>
+      </FilterProvider>
     </QueryClientProvider>
   );
 }

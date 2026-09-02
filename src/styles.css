@@ -198,3 +198,27 @@
     transform: scaleX(1);
   }
 }
+
+/* Semáforo: mapeos de clases legacy y aliases */
+.bg-alto { background-color: var(--color-good) !important; }
+.bg-medio { background-color: var(--color-warn) !important; }
+.bg-bajo { background-color: var(--color-bad) !important; }
+.text-alto { color: var(--color-good) !important; }
+.text-medio { color: var(--color-warn) !important; }
+.text-bajo { color: var(--color-bad) !important; }
+
+/* Aliases preferidos */
+.bg-success { background-color: var(--color-good) !important; }
+.bg-warning { background-color: var(--color-warn) !important; }
+.bg-danger { background-color: var(--color-bad) !important; }
+.text-success { color: var(--color-good) !important; }
+.text-warning { color: var(--color-warn) !important; }
+.text-danger { color: var(--color-bad) !important; }
+
+/* Catch-all for Tailwind-style alpha suffixes (e.g. bg-danger/15) */
+[class*="bg-success"] { background-color: var(--color-good) !important; }
+[class*="bg-warning"] { background-color: var(--color-warn) !important; }
+[class*="bg-danger"] { background-color: var(--color-bad) !important; }
+[class*="text-success"] { color: var(--color-good) !important; }
+[class*="text-warning"] { color: var(--color-warn) !important; }
+[class*="text-danger"] { color: var(--color-bad) !important; }

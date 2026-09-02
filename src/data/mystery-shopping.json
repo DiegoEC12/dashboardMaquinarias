@@ -1,0 +1,84 @@
+{
+    "meta": {
+        "fuente": "Base_Mystery_Shopping_Consolidada.xlsx",
+        "periodo": "Base consolidada 2025"
+    },
+    "indicators": [
+        {
+            "id": "IND_01",
+            "nombre": "Instalaciones y Ambiente General",
+            "peso": 0.05,
+            "orden": 1
+        },
+        {
+            "id": "IND_02",
+            "nombre": "Protocolo de atención",
+            "peso": 0.1,
+            "orden": 2
+        },
+        {
+            "id": "IND_03",
+            "nombre": "Identificación de necesidades",
+            "peso": 0.1,
+            "orden": 3
+        },
+        {
+            "id": "IND_04",
+            "nombre": "Presentación del producto",
+            "peso": 0.1,
+            "orden": 4
+        },
+        {
+            "id": "IND_05",
+            "nombre": "Propuesta de valor y diferenciación",
+            "peso": 0.05,
+            "orden": 5
+        },
+        {
+            "id": "IND_06",
+            "nombre": "Generación de confianza",
+            "peso": 0.1,
+            "orden": 6
+        },
+        {
+            "id": "IND_07",
+            "nombre": "Estrategia comercial",
+            "peso": 0.1,
+            "orden": 7
+        },
+        {
+            "id": "IND_08",
+            "nombre": "Cierre Comercial",
+            "peso": 0.1,
+            "orden": 8
+        },
+        {
+            "id": "IND_09",
+            "nombre": "Omisiones al Discurso Comercial",
+            "peso": 0.05,
+            "orden": 9
+        },
+        {
+            "id": "IND_10",
+            "nombre": "Valor marca Maquinarias",
+            "peso": 0.1,
+            "orden": 10
+        },
+        {
+            "id": "IND_11",
+            "nombre": "Experiencia",
+            "peso": 0.1,
+            "orden": 11
+        },
+        {
+            "id": "IND_12",
+            "nombre": "Seguimiento",
+            "peso": 0.05,
+            "orden": 12
+        }
+    ],
+    "evaluations": [],
+    "indicatorResults": [],
+    "questions": [],
+    "questionResponses": []
+}

@@ -1,0 +1,164 @@
+{
+ "meta": {
+  "fuente": "Base_Mystery_Shopping_Consolidada.xlsx",
+  "periodo": "Base consolidada 2025"
+ },
+ "indicators": [
+  {
+   "id": "IND_01",
+   "nombre": "Instalaciones y Ambiente General",
+   "peso": 0.05,
+   "orden": 1
+  },
+  {
+   "id": "IND_02",
+   "nombre": "Protocolo de atención",
+   "peso": 0.1,
+   "orden": 2
+  },
+  {
+   "id": "IND_03",
+   "nombre": "Identificación de necesidades",
+   "peso": 0.1,
+   "orden": 3
+  },
+  {
+   "id": "IND_04",
+   "nombre": "Presentación del producto",
+   "peso": 0.1,
+   "orden": 4
+  },
+  {
+   "id": "IND_05",
+   "nombre": "Propuesta de valor y diferenciación",
+   "peso": 0.05,
+   "orden": 5
+  },
+  {
+   "id": "IND_06",
+   "nombre": "Generación de confianza",
+   "peso": 0.1,
+   "orden": 6
+  },
+  {
+   "id": "IND_07",
+   "nombre": "Estrategia comercial",
+   "peso": 0.1,
+   "orden": 7
+  },
+  {
+   "id": "IND_08",
+   "nombre": "Cierre Comercial",
+   "peso": 0.1,
+   "orden": 8
+  },
+  {
+   "id": "IND_09",
+   "nombre": "Omisiones al Discurso Comercial",
+   "peso": 0.05,
+   "orden": 9
+  },
+  {
+   "id": "IND_10",
+   "nombre": "Valor marca Maquinarias",
+   "peso": 0.1,
+   "orden": 10
+  },
+  {
+   "id": "IND_11",
+   "nombre": "Experiencia",
+   "peso": 0.1,
+   "orden": 11
+  },
+  {
+   "id": "IND_12",
+   "nombre": "Seguimiento",
+   "peso": 0.05,
+   "orden": 12
+  }
+ ],
+ "evaluations": [
+  {
+   "id": "EV_DA67A829EECA",
+   "periodo": "Base consolidada 2025",
+   "fecha": null,
+   "concesionaria": "Astara",
+   "marca": "Kia",
+   "ubicacion": "Surquillo",
+   "tipoEmpresa": "COMPETENCIA",
+   "puntajeGlobal": 0.3351,
+   "comentarioGeneral": "El primer contacto presenta una debilidad importante, ya que, pese a que el cliente se registra mediante el WhatsApp de la página web para solicitar información, ningún asesor se contacta con él. Esto genera una oportunidad comercial perdida desde el inicio y motiva que el cliente tenga que acudir directamente al concesionario. Durante la visita, el local se encontraba limpio y ordenado, con los vehículos correctamente exhibidos y limpios. Sin embargo, se identifican oportunidades de mejora en la presentación comercial: los vehículos no contaban con información visible sobre características y precios, las pantallas estaban apagadas y la música se encontraba a un volumen elevado. La asesora brinda una atención parcialmente adecuada, pero no logra generar una experiencia comercial sólida. No se presenta por su nombre ni se identifica con la marca, realiza una indagación limitada y la explicación del vehículo es básica, sin profundizar en sus principales atributos y beneficios. No obstante, sí comunica información relevante sobre promociones, obsequios, garantía, mantenimiento gratuito, separación, seguros y entidades financieras con las que trabajan. Un aspecto desfavorable es que no entrega material comercial durante la visita, como brochure o díptico, limitándose a indicar que enviaría el presupuesto por WhatsApp. Asimismo, el seguimiento se realiza recién al cuarto día, evidenciando una gestión tardía frente a la oportunidad comercial. Conclusión: La atención presenta oportunidades importantes de mejora en el contacto inicial, presentación de la marca, profundidad de la argumentación, material comercial y seguimiento. Si bien la asesora proporciona información relevante sobre el vehículo y las condiciones comerciales, no logra aprovechar la visita para generar mayor interés, confianza y avance hacia la decisión de compra.",
+   "recomendaciones": "Se recomienda fortalecer de manera inmediata el proceso de contacto y seguimiento comercial, asegurando que todo registro generado por WhatsApp sea atendido oportunamente por un asesor. Durante la visita, la asesora debe presentarse, identificar claramente la marca, profundizar en las necesidades del cliente y brindar una explicación más completa del vehículo, destacando sus principales beneficios y ventajas frente a la competencia. Asimismo, es importante entregar material comercial y realizar el seguimiento dentro de las 48 horas, aportando información adicional que impulse la decisión de compra.",
+   "evaluador": null,
+   "estadoCalidad": "OK"
+  },
+  {
+   "id": "EV_32F32CC86AD6",
+   "periodo": "Base consolidada 2025",
+   "fecha": null,
+   "concesionaria": "Autoland",
+   "marca": "Ford",
+   "ubicacion": "Surquillo",
+   "tipoEmpresa": "COMPETENCIA",
+   "puntajeGlobal": 0.5252,
+   "comentarioGeneral": "El primer contacto se realizó a través de la página web, mediante WhatsApp, con el objetivo de solicitar una cita con un asesor. La atención inicial estuvo a cargo del personal del call center, quien brindó información básica y gestionó correctamente la programación de la visita al concesionario. Sin embargo, se presentó una incidencia importante en la atención presencial. La cita estaba programada para las 10:30 a. m.; el cliente acudió puntualmente, pero el asesor asignado no se encontraba en el concesionario. Ante esta situación, el cliente tuvo que retirarse y regresar a las 11:30 a. m., siendo finalmente atendido por otro asesor. Esto genera una percepción negativa desde el inicio y evidencia una falta de coordinación y cumplimiento del horario pactado. Durante la atención, el asesor se presentó por su nombre, pero no mencionó la marca de la empresa al momento del saludo. Brindó información sobre las características y beneficios del vehículo; sin embargo, la interacción fue principalmente informativa y básica, ya que no realizó una adecuada indagación de las necesidades, preferencias ni presupuesto del cliente, limitando la posibilidad de personalizar la propuesta y generar una mayor intención de compra. Respecto a la información comercial, indicó que la compra al contado cuenta con un descuento de US$ 2,000, que trabajan con todos los bancos y que la separación del vehículo es de US$ 1,000. Asimismo, explicó los beneficios y obsequios asociados a la compra, entre ellos el kit de seguro, lámina de seguridad, trámite de tarjeta de propiedad y pisos de GG. En cuanto a las instalaciones, el concesionario se encontraba ordenado y los vehículos estaban correctamente exhibidos y limpios. No obstante, se identificó una oportunidad de mejora importante, debido a que los vehículos no contaban con información visible sobre sus principales características ni precios, lo que limita la autonomía del cliente durante su recorrido por el showroom. Asim [truncated]
+   "recomendaciones": "*Garantizar el cumplimiento de las citas, asegurando que el asesor esté disponible y preparado a la hora acordada. *Fortalecer la indagación de necesidades, identificando presupuesto, preferencias, uso del vehículo y expectativas del cliente. *Estandarizar el saludo y presentación, incluyendo siempre la mención de la marca y una atención más personalizada. *Mejorar la información de los vehículos exhibidos, colocando precios y principales características visibles. *Reforzar la limpieza del área de cafetería, realizando controles periódicos durante la jornada. *Potenciar el seguimiento comercial, aprovechando el contacto posterior para resolver objeciones y buscar concretar la venta.",
+   "evaluador": null,
+   "estadoCalidad": "OK"
+  },
+  {
+   "id": "EV_595466383527",
+   "periodo": "Base consolidada 2025",
+   "fecha": null,
+   "concesionaria": "Autoland",
+   "marca": "Nissan",
+   "ubicacion": "San Miguel",
+   "tipoEmpresa": "COMPETENCIA",
+   "puntajeGlobal": 0.3865,
+   "comentarioGeneral": "La atención presenta importantes oportunidades de mejora desde el inicio del recorrido del cliente, principalmente por la falta de proactividad del personal. A pesar de que el cliente acudió con una cita previamente coordinada, ningún colaborador se acercó a recibirlo ni mostró iniciativa para brindarle atención, obligándolo a dirigirse por cuenta propia al puesto de trabajo de una asesora. Esta situación genera una primera impresión desfavorable y evidencia debilidades en el protocolo de bienvenida. Una vez iniciada la atención, la asesora demuestra buen conocimiento del vehículo y del proyecto, explicando sus principales características, los regalos incluidos, las condiciones de separación, la promoción vigente y la campaña financiera 50/50 con Banco Santander. Asimismo, entrega la cotización impresa, cumpliendo con proporcionar información comercial relevante al cliente. Sin embargo, la atención no alcanza un enfoque comercial orientado al cierre. La asesora brinda información, pero no profundiza suficientemente en las necesidades del cliente ni desarrolla acciones concretas para avanzar hacia la compra. Durante la visita no intenta generar una decisión de compra, no plantea la separación como siguiente paso ni establece un compromiso comercial que permita acercar al cliente al cierre. Otro aspecto crítico es el incumplimiento del seguimiento posterior, ya que la asesora no contacta al cliente dentro del plazo establecido. Esto representa una pérdida importante de oportunidad comercial, especialmente considerando que el cliente ya había realizado una visita presencial y recibido una cotización. También se identifican deficiencias en la experiencia y hospitalidad. La asesora no se identifica con la marca, no se presenta por su nombre ni personaliza la atención. Además, no se ofrece ninguna cortesía durante la visita, como agua o café, desaprovechando una oportunidad para generar una experiencia más cercana y diferenciada. En conclusión, la [truncated]
+   "recomendaciones": "*Reforzar el protocolo de bienvenida, asegurando que todo cliente con cita sea recibido inmediatamente y que un asesor se acerque de manera proactiva, sin esperar a que el cliente solicite atención. *Mejorar el inicio de la atención, estableciendo como obligatorio que el asesor mencione la marca, se presente por su nombre y personalice la conversación desde el primer contacto. *Fortalecer la gestión comercial, pasando de una atención meramente informativa a una asesoría orientada a la venta, profundizando en las necesidades del cliente y vinculándolas con los beneficios del proyecto. *Potenciar las técnicas de cierre, buscando generar una acción concreta durante la visita, como la separación del vehículo, una evaluación financiera o el compromiso de una siguiente reunión. *Garantizar el seguimiento dentro de las 48 horas, considerando que la falta de contacto posterior representa una pérdida directa de una oportunidad comercial. *Reforzar el protocolo de hospitalidad, ofreciendo agua, café u otra bebida durante la permanencia del cliente en el local. Mantener el buen dominio del producto y la entrega de la cotización impresa, complementándolos con una gestión más proactiva y orientada a convertir la visita en una oportunidad real de venta.",
+   "evaluador": null,
+   "estadoCalidad": "OK"
+  },
+  {
+   "id": "EV_19A457287833",
+   "periodo": "Base consolidada 2025",
+   "fecha": null,
+   "concesionaria": "Autosummit",
+   "marca": "Ford",
+   "ubicacion": "Javier Prado",
+   "tipoEmpresa": "COMPETENCIA",
+   "puntajeGlobal": 0.7765,
+   "comentarioGeneral": "La atención brindada en el concesionario fue altamente satisfactoria, destacando desde el ingreso la cordialidad y disposición del personal. El cliente fue recibido por vigilancia y posteriormente por la anfitriona, quien se presentó y realizó una adecuada derivación hacia el asesor comercial. El asesor demostró dominio de la información sobre la marca y el vehículo, explicando de manera completa sus características, beneficios, garantía, servicio postventa y regalos incluidos. Asimismo, mantuvo una actitud amable, cordial y profesional durante toda la atención, transmitiendo confianza y seguridad. Como aspectos positivos adicionales, se destaca ola atención e personal, ofreciendo al cliente bebidas y snacks, la invitación a realizar una prueba de manejo sin compromiso y la explicación detallada de las alternativas de financiamiento, separación del vehículo, seguro y beneficios adicionales. El asesor logró presentar una propuesta comercial amplia, abordando diferentes elementos que pueden contribuir a la decisión de compra. El seguimiento posterior también fue adecuado, ya que la asesora se contactó con el cliente dentro del plazo establecido, dando continuidad a la oportunidad comercial. Como principal oportunidad de mejora, se identifica que no se entregó ningún material físico durante la visita, como brochure, díptico o ficha informativa del vehículo. Si bien se solicitó la información del cliente para enviar posteriormente la cotización formal por correo, contar con material impreso permitiría reforzar la información brindada, facilitar la comparación y mantener presente la propuesta comercial después de la visita.",
+   "recomendaciones": "*Mantener el excelente nivel de atención y cordialidad demostrado por el personal durante toda la visita. *Reforzar la entrega de material comercial físico, como brochures, fichas técnicas o dípticos, que complementen la información brindada por el asesor. *Continuar realizando seguimiento dentro de los plazos establecidos, aprovechando el interés generado durante la visita. *Mantener la explicación integral de promociones, financiamiento, seguros, garantía y beneficios, ya que estos elementos fortalecen la propuesta de valor y favorecen la decisión de compra.",
+   "evaluador": null,
+   "estadoCalidad": "OK"
+  },
+  {
+   "id": "EV_0944BA00474B",
+   "periodo": "Base consolidada 2025",
+   "fecha": null,
+   "concesionaria": "Gildemeister",
+   "marca": "Hyundai",
+   "ubicacion": "San Miguel",
+   "tipoEmpresa": "COMPETENCIA",
+   "puntajeGlobal": 0.3994,
+   "comentarioGeneral": "El principal hallazgo de la visita es que, si bien la asesora brinda una atención amable, cordial y con buena disposición, la experiencia comercial presenta oportunidades importantes de mejora. El cliente acudió con cita previa, pero el asesor inicialmente asignado no se encontraba en el concesionario, y al ingresar no recibió ningún saludo ni abordaje espontáneo, teniendo que buscar por iniciativa propia a una asesora para ser atendido. Esta situación genera una percepción de falta de organización y debilita el inicio de la experiencia. La concesionaria presenta una buena imagen general, con ambientes limpios y ordenados, vehículos correctamente exhibidos y fichas técnicas en cada unidad. Asimismo, cuenta con elementos diferenciadores como máquina de café y silla de masajes, que podrían contribuir positivamente a la experiencia; sin embargo, estos beneficios no son aprovechados durante la atención, ya que la asesora no invita al cliente a consumir ninguna bebida. En cuanto a la gestión comercial, la asesora proporciona información sobre características, colores, descuentos, bonos y obsequios, además de entregar una cotización impresa y registrar los datos del cliente. No obstante, la atención se mantiene principalmente informativa y poco orientada a la venta. No se realiza una adecuada indagación de necesidades, no se profundiza en el perfil del cliente, no se ofrece prueba de manejo y, sobre todo, no se genera un intento concreto de cierre, separación o compromiso de compra. Esto representa una oportunidad crítica, considerando que el cliente ya había mostrado interés al acudir al concesionario con una cita previa. Asimismo, el incumplimiento del seguimiento dentro del tiempo establecido evidencia una debilidad en la continuidad comercial, pudiendo ocasionar la pérdida de un cliente potencialmente interesado.",
+   "recomendaciones": "*Garantizar la recepción inmediata del cliente, especialmente cuando cuenta con una cita previa, evitando que ingrese y recorra el salón sin ser abordado. *Fortalecer la presentación del asesor, quien debe identificarse por su nombre, mencionar la marca y personalizar la atención desde el primer contacto. *Profundizar la indagación de necesidades, identificando presupuesto, preferencias, uso del vehículo, modelo de interés y plazo de compra para orientar mejor la propuesta comercial. *Incorporar la prueba de manejo como parte del proceso de venta, utilizándola como herramienta para generar mayor interés y acercar al cliente a la decisión de compra. *Reforzar las técnicas de cierre, buscando generar una acción concreta como la separación del vehículo, proponiendo la separación del vehículo o una evaluación financiera. *Aprovechar los servicios disponibles en la sala de espera, como café y agua, para generar una experiencia más diferenciada. *Cumplir estrictamente con el seguimiento comercial, contactando al cliente dentro del plazo establecido y dando continuidad a la cotización entregada." 
+  }
+ ],
+ "indicatorResults": [
+  {
+   "idEvaluacion": "EV_DA67A829EECA",
+   "idIndicador": "IND_01",
+   "resultado": 0.6461,
+   "peso": 0.05
+  },
+  {
+   "idEvaluacion": "EV_DA67A829EECA",
+   "idIndicador": "IND_02",
+   "resultado": 0.5292,
+   "peso": 0.1
+  }
+ ]
+}

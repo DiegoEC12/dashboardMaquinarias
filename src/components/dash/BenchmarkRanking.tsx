@@ -50,17 +50,10 @@ export function BenchmarkPanel({ evs, delay = 0 }: { evs: Evaluacion[]; delay?: 
                 {row.name}
                 <span className="ml-2 text-xs font-normal text-muted-foreground">{row.n} visitas</span>
               </span>
-              <span className="font-display text-lg font-bold">{row.n ? pct(row.value) : "—"}</span>
+              <span className={cn("font-display text-lg font-bold", row.value !== null ? (row.value >= 0.85 ? "text-success" : row.value >= 0.7 ? "text-warning" : "text-danger") : "text-muted-foreground")}>{row.n ? pct(row.value) : "—"}</span>
             </div>
-            <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="grow-bar h-full rounded-full"
-                style={{
-                  width: `${Math.max(2, row.value * 100)}%`,
-                  backgroundImage: row.own ? "var(--gradient-brand)" : "var(--gradient-graphite)",
-                  animationDelay: `${i * 120}ms`,
-                }}
-              />
+            <div className="mt-1">
+              <ScoreBar value={row.value ?? 0} className="h-3" />
             </div>
           </div>
         ))}
