@@ -21,12 +21,14 @@ export function Heatmap({
   onSelect,
   selected,
   delay = 0,
+  maxViewportHeightClass = "max-h-105",
 }: {
   evs: Evaluacion[];
   evalIdsByRow?: Map<string, string[]>;
   onSelect: (id: string) => void;
   selected: string | null;
   delay?: number;
+  maxViewportHeightClass?: string;
 }) {
   const [hover, setHover] = useState<Cell | null>(null);
 
@@ -47,8 +49,8 @@ export function Heatmap({
       }
     >
       <div className="relative">
-        <div className="overflow-x-auto pb-1">
-          <div className="min-w-[640px]">
+        <div className={cn("overflow-auto pb-1 pr-1", maxViewportHeightClass)}>
+          <div className="min-w-160">
             <div
               className="grid gap-1"
               style={{ gridTemplateColumns: `minmax(150px, 1fr) repeat(${indicadorCatalogo.length}, minmax(0, 1fr))` }}
@@ -146,7 +148,7 @@ function FragmentRow({
             onMouseEnter={() => onHover({ ev, n: c.n, nombre: c.nombre, valor })}
             onMouseLeave={() => onHover(null)}
             onFocus={() => onHover({ ev, n: c.n, nombre: c.nombre, valor })}
-            className="rise-in h-7 rounded-[4px] transition-transform duration-200 hover:z-10 hover:scale-[1.18] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rise-in h-7 rounded-lg transition-transform duration-200 hover:z-10 hover:scale-[1.12] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             style={{
               backgroundColor: toneColor[toneOf(valor)],
               opacity: 0.35 + Math.min(0.65, valor + 0.15),

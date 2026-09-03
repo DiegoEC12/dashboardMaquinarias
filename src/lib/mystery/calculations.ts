@@ -1,9 +1,10 @@
-import { dataset, isMaquinarias } from "./dataset";
+import { dataset } from "./dataset";
 import type { Evaluation, IndicatorResult } from "./types";
+import { includesTipoEvaluacion } from "@/lib/tipo-evaluacion";
 
 export const THRESHOLDS = {
-  ALTO: 0.85,
-  MEDIO: 0.7,
+  ALTO: 0.7,
+  MEDIO: 0.5,
 } as const;
 
 export type Status = "alto" | "medio" | "critico" | "sin-evaluar";
@@ -24,7 +25,7 @@ export const INDICATOR_STATE_LABEL: Record<Status, string> = {
 
 export function statusFor(v: number | null | undefined): Status {
   if (v === null || v === undefined || !Number.isFinite(v)) return "sin-evaluar";
-  if (v >= THRESHOLDS.ALTO) return "alto";
+  if (v > THRESHOLDS.ALTO) return "alto";
   if (v >= THRESHOLDS.MEDIO) return "medio";
   return "critico";
 }
@@ -55,7 +56,7 @@ export function filterEvaluations(evals: Evaluation[], f: GlobalFilters): Evalua
       (!f.concesionaria || f.concesionaria.includes(e.concesionaria)) &&
       (!f.marca || f.marca.includes(e.marca)) &&
       (!f.ubicacion || f.ubicacion.includes(e.ubicacion)) &&
-      (!f.tipoEvaluacion || f.tipoEvaluacion.includes(e.tipoEvaluacion)) &&
+      includesTipoEvaluacion(f.tipoEvaluacion, e.tipoEvaluacion) &&
       (!selectedIndicators ||
         dataset.indicatorResults.some(
           (result) =>
@@ -79,7 +80,7 @@ export interface Scopes {
 }
 
 export function getScopes(f: GlobalFilters): Scopes {
-  const base = filterEvaluations(dataset.evaluations, {
+  const universe = filterEvaluations(dataset.evaluations, {
     ...EMPTY_FILTERS,
     periodo: f.periodo,
     concesionaria: null,
@@ -88,30 +89,49 @@ export function getScopes(f: GlobalFilters): Scopes {
     tipoEvaluacion: f.tipoEvaluacion,
     indicador: f.indicador,
   });
-  const maqAll = base.filter((e) => e.tipoEmpresa === "MAQUINARIAS");
-  const compAll = base.filter((e) => e.tipoEmpresa === "COMPETENCIA");
+  const selection = filterEvaluations(dataset.evaluations, {
+    ...EMPTY_FILTERS,
+    periodo: f.periodo,
+    concesionaria: f.concesionaria,
+    marca: f.marca,
+    ubicacion: f.ubicacion,
+    tipoEvaluacion: f.tipoEvaluacion,
+    indicador: f.indicador,
+  });
+  const maqAll = universe.filter((e) => e.tipoEmpresa === "MAQUINARIAS");
+  const compAll = universe.filter((e) => e.tipoEmpresa === "COMPETENCIA");
 
-  let maq = maqAll;
-  let comp = compAll;
+  let maq = f.concesionaria?.length
+    ? selection.filter((e) => e.tipoEmpresa === "MAQUINARIAS")
+    : maqAll;
+  let comp = f.concesionaria?.length
+    ? selection.filter((e) => e.tipoEmpresa === "COMPETENCIA")
+    : compAll;
   let maqLabel = "Maquinarias (todas)";
   let compLabel = "Competencia (todas)";
   const selectedConcesionarias = f.concesionaria;
   const selectedConcesionaria = selectedConcesionarias?.[0];
-  if (
-    selectedConcesionarias?.length === 1 &&
-    selectedConcesionaria &&
-    isMaquinarias(selectedConcesionaria)
-  ) {
-    maq = maqAll.filter((e) => selectedConcesionarias.includes(e.concesionaria));
-    maqLabel = selectedConcesionaria;
-  } else if (selectedConcesionarias?.length === 1) {
-    comp = compAll.filter((e) => selectedConcesionarias.includes(e.concesionaria));
-    compLabel = selectedConcesionaria ?? "";
+
+  if (selectedConcesionarias?.length === 1 && selectedConcesionaria) {
+    const selectedType =
+      universe.find((e) => e.concesionaria === selectedConcesionaria)?.tipoEmpresa ?? null;
+    if (selectedType === "MAQUINARIAS") {
+      maq = selection.filter((e) => e.tipoEmpresa === "MAQUINARIAS");
+      comp = compAll;
+      maqLabel = selectedConcesionaria;
+    } else if (selectedType === "COMPETENCIA") {
+      comp = selection.filter((e) => e.tipoEmpresa === "COMPETENCIA");
+      maq = maqAll;
+      compLabel = selectedConcesionaria;
+    }
   }
 
-  const selection = selectedConcesionarias?.length
-    ? base.filter((e) => selectedConcesionarias.includes(e.concesionaria))
-    : base;
+  if (selectedConcesionarias?.length && maqLabel === "Maquinarias (todas)") {
+    maqLabel = `Maquinarias (${selectedConcesionarias.length} seleccionadas)`;
+  }
+  if (selectedConcesionarias?.length && compLabel === "Competencia (todas)") {
+    compLabel = `Competencia (${selectedConcesionarias.length} seleccionadas)`;
+  }
 
   return {
     selection,

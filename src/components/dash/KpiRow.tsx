@@ -83,8 +83,8 @@ export function KpiRow({
   const worst = scored[scored.length - 1];
   const criticos = indicadores.filter((i) => i.valor < 0.5);
   const dist = {
-    alto: scored.filter((s) => s.score >= 0.7).length,
-    medio: scored.filter((s) => s.score >= 0.5 && s.score < 0.7).length,
+    alto: scored.filter((s) => s.score > 0.7).length,
+    medio: scored.filter((s) => s.score >= 0.5 && s.score <= 0.7).length,
     critico: scored.filter((s) => s.score < 0.5).length,
   };
 

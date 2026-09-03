@@ -18,6 +18,7 @@ import { dataset } from "@/lib/mystery/dataset";
 import { fmtPct } from "@/lib/mystery/format";
 import { useFilters } from "@/lib/mystery/filter-context";
 import { cn } from "@/lib/utils";
+import CompactFilterControls from "@/components/dash/CompactFilterControls";
 
 export const Route = createFileRoute("/concesionarias")({
   head: () => ({
@@ -52,7 +53,8 @@ function ConcesionariasPage() {
   }>({});
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
-  const scopes = useMemo(() => getScopes(filters), [filters, dataVersion]);
+  void dataVersion;
+  const scopes = getScopes(filters);
   const benchmark = useMemo(() => calculateBenchmark(scopes), [scopes]);
   const reference = benchmark.competencia;
 
@@ -264,65 +266,72 @@ function ConcesionariasPage() {
         title="Concesionarias"
         description="¿Dónde están los mejores y peores resultados? Ranking, mapa y drill-down."
       />
-      {scopes.selection.length === 0 ? (
-        <div className="p-5 md:p-8">
-          <EmptyState />
-        </div>
-      ) : (
-        <div className="flex flex-col gap-6 p-5 md:p-8">
-          <nav className="flex flex-wrap items-center gap-1 text-[13px]">
-            {crumbs.map((c, i) => (
-              <span key={`${c.label}-${i}`} className="flex items-center gap-1">
-                {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />}
-                <button
-                  onClick={c.onClick}
-                  disabled={i === crumbs.length - 1}
-                  className={cn(
-                    "transition-ui rounded px-1.5 py-0.5",
-                    i === crumbs.length - 1
-                      ? "font-semibold text-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-primary",
-                  )}
-                >
-                  {c.label}
-                </button>
-              </span>
-            ))}
-            <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-              {drilled.length} evaluaciones
-            </span>
-          </nav>
+      <CompactFilterControls />
 
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-            <section className="rounded-xl border border-border bg-card p-5">
-              <SectionHeader
-                title={`Ranking por ${levelLabel}`}
-                description={`Barra vertical = referencia competencia (${fmtPct(reference)}).`}
-                action={
-                  <select
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value as SortMode)}
-                    className="transition-ui h-8 rounded-md border border-input bg-card px-2 text-[13px] font-medium shadow-xs outline-none focus:border-ring"
-                  >
-                    {SORT_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
-                }
-              />
+      <div className="flex flex-col gap-6 p-5 md:p-8">
+        {scopes.selection.length === 0 && (
+          <section className="rounded-xl border border-dashed border-border bg-card p-5">
+            <EmptyState />
+          </section>
+        )}
+
+        <nav className="flex flex-wrap items-center gap-1 text-[13px]">
+          {crumbs.map((c, i) => (
+            <span key={`${c.label}-${i}`} className="flex items-center gap-1">
+              {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />}
+              <button
+                onClick={c.onClick}
+                disabled={i === crumbs.length - 1}
+                className={cn(
+                  "transition-ui rounded px-1.5 py-0.5",
+                  i === crumbs.length - 1
+                    ? "font-semibold text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-primary",
+                )}
+              >
+                {c.label}
+              </button>
+            </span>
+          ))}
+          <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+            {drilled.length} evaluaciones
+          </span>
+        </nav>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+          <section className="rounded-xl border border-border bg-card p-5">
+            <SectionHeader
+              title={`Ranking por ${levelLabel}`}
+              description={`Barra vertical = referencia competencia (${fmtPct(reference)}).`}
+              action={
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as SortMode)}
+                  className="transition-ui h-8 rounded-md border border-input bg-card px-2 text-[13px] font-medium shadow-xs outline-none focus:border-ring"
+                >
+                  {SORT_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              }
+            />
+            {visibleRanking.length === 0 ? (
+              <p className="py-4 text-sm text-muted-foreground">No hay datos para el ranking con los filtros actuales.</p>
+            ) : (
               <RankingBars
                 rows={visibleRanking}
                 reference={reference}
                 selectedKey={selectedKey}
                 onSelect={handleRankingSelect}
               />
-            </section>
+            )}
+          </section>
 
-            <section className="rounded-xl border border-border bg-card p-5">
-              {selected ? (
-                <>
+          <section className="rounded-xl border border-border bg-card p-5">
+            {selected ? (
+              <>
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <h2 className="truncate text-[17px] font-bold text-foreground">
@@ -388,52 +397,54 @@ function ConcesionariasPage() {
                       : `Profundizar en ${selected.label}`}
                     <ArrowRight className="h-4 w-4" />
                   </button>
-                </>
-              ) : (
-                <div className="flex h-full min-h-70 flex-col items-center justify-center gap-2 text-center">
-                  <p className="text-sm font-medium text-foreground">
-                    Selecciona un elemento del ranking
-                  </p>
-                  <p className="max-w-xs text-[13px] text-muted-foreground">
-                    Verás su puntaje, benchmark, brecha y desempeño por indicador, con opción de
-                    profundizar hasta el local.
-                  </p>
-                </div>
-              )}
-            </section>
-          </div>
-
-          <section className="rounded-xl border border-border bg-card p-4">
-            <SectionHeader
-              title="Mapa por locales"
-              description="Explora el resultado por indicador en cada local del universo seleccionado."
-            />
-            {drilled.length === 0 ? (
-              <EmptyState />
+              </>
             ) : (
-              <Heatmap
-                rows={heatRows.map((row) => ({ key: row.key, label: row.label, sub: row.sub }))}
-                columns={heatColumns}
-                cell={(rowKey, colId) => heatMatrix.get(rowKey)?.get(colId) ?? { value: null, n: 0 }}
-                benchmark={(colId) => heatBenchmarkByIndicator.get(colId) ?? null}
-                selectedRow={level === "local" ? selectedKey : null}
-                showNumericHeaders
-                compact
-                showHoverFooter
-                onRowSelect={(rowKey) => {
-                  const row = heatRows.find((item) => item.key === rowKey);
-                  if (level === "local") {
-                    setSelectedKey(rowKey);
-                    return;
-                  }
-                  if (row?.ids[0]) openEvaluacion(row.ids[0]);
-                }}
-                onColSelect={(id) => openIndicador(id)}
-              />
+              <div className="flex h-full min-h-70 flex-col items-center justify-center gap-2 text-center">
+                <p className="text-sm font-medium text-foreground">
+                  {drilled.length === 0
+                    ? "No hay datos para detallar"
+                    : "Selecciona un elemento del ranking"}
+                </p>
+                <p className="max-w-xs text-[13px] text-muted-foreground">
+                  {drilled.length === 0
+                    ? "Ajusta los filtros globales para visualizar resultados y luego selecciona un elemento."
+                    : "Verás su puntaje, benchmark, brecha y desempeño por indicador, con opción de profundizar hasta el local."}
+                </p>
+              </div>
             )}
           </section>
         </div>
-      )}
+
+        <section className="rounded-xl border border-border bg-card p-4">
+          <SectionHeader
+            title="Mapa por locales"
+            description="Explora el resultado por indicador en cada local del universo seleccionado."
+          />
+          {drilled.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <Heatmap
+              rows={heatRows.map((row) => ({ key: row.key, label: row.label, sub: row.sub }))}
+              columns={heatColumns}
+              cell={(rowKey, colId) => heatMatrix.get(rowKey)?.get(colId) ?? { value: null, n: 0 }}
+              benchmark={(colId) => heatBenchmarkByIndicator.get(colId) ?? null}
+              selectedRow={level === "local" ? selectedKey : null}
+              showNumericHeaders
+              compact
+              showHoverFooter
+              onRowSelect={(rowKey) => {
+                const row = heatRows.find((item) => item.key === rowKey);
+                if (level === "local") {
+                  setSelectedKey(rowKey);
+                  return;
+                }
+                if (row?.ids[0]) openEvaluacion(row.ids[0]);
+              }}
+              onColSelect={(id) => openIndicador(id)}
+            />
+          )}
+        </section>
+      </div>
     </>
   );
 }

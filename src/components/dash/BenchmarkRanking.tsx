@@ -52,7 +52,20 @@ export function BenchmarkPanel({ evs, delay = 0 }: { evs: Evaluacion[]; delay?: 
                 {row.name}
                 <span className="ml-2 text-xs font-normal text-muted-foreground">{row.n} visitas</span>
               </span>
-              <span className={cn("font-display text-lg font-bold", row.value !== null ? (row.value >= 0.85 ? "text-success" : row.value >= 0.7 ? "text-warning" : "text-danger") : "text-muted-foreground")}>{row.n ? pct(row.value) : "—"}</span>
+              <span
+                className={cn(
+                  "font-display text-lg font-bold",
+                  row.value !== null
+                    ? toneOf(row.value) === "alto"
+                      ? "text-success"
+                      : toneOf(row.value) === "medio"
+                        ? "text-warning"
+                        : "text-danger"
+                    : "text-muted-foreground",
+                )}
+              >
+                {row.n ? pct(row.value) : "—"}
+              </span>
             </div>
             <div className="mt-1">
               <ScoreBar value={row.value ?? 0} className="h-3" />

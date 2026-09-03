@@ -10,25 +10,53 @@ type Props = {
   values: string[] | null;
   options: Option[];
   allLabel?: string;
+  singleOrAll?: boolean;
   onChange: (values: string[] | null) => void;
 };
 
-export function MultiFilterSelect({ label, values, options, allLabel = "Todas", onChange }: Props) {
-  const allSelected = values === null || options.every((option) => values.includes(option.value));
+export function MultiFilterSelect({
+  label,
+  values,
+  options,
+  allLabel = "Todas",
+  singleOrAll = false,
+  onChange,
+}: Props) {
+  const allSelected = singleOrAll
+    ? values === null
+    : values === null ||
+      (options.length > 0 && values.length > 0 && options.every((option) => values.includes(option.value)));
   const selectedLabel = allSelected
     ? allLabel
+    : values.length === 0
+      ? "Ninguna"
     : values.length === 1
       ? (options.find((option) => option.value === values[0])?.label ?? values[0])
       : `${values.length} seleccionadas`;
 
-  const toggleAll = (checked: boolean) => onChange(checked ? null : []);
+  const toggleAll = (checked: boolean) => {
+    if (singleOrAll) {
+      onChange(checked ? null : []);
+      return;
+    }
+    onChange(checked ? null : []);
+  };
+
   const toggleOption = (value: string, checked: boolean) => {
+    if (singleOrAll) {
+      onChange(checked ? [value] : []);
+      return;
+    }
+
     const current = allSelected ? options.map((option) => option.value) : (values ?? []);
     const next = checked
       ? [...current.filter((item) => item !== value), value]
       : current.filter((item) => item !== value);
     onChange(next.length === options.length ? null : next);
   };
+
+  const lockedBySingleMode =
+    singleOrAll && values !== null && values.length === 1 ? values[0] : null;
 
   return (
     <Popover>
@@ -60,14 +88,17 @@ export function MultiFilterSelect({ label, values, options, allLabel = "Todas", 
         <div className="my-1 border-t border-border" />
         <div className="max-h-64 overflow-y-auto">
           {options.map((option) => {
-            const checked = allSelected || values.includes(option.value);
+            const checked = singleOrAll ? (values ?? []).includes(option.value) : allSelected || values.includes(option.value);
+            const disabled = lockedBySingleMode !== null && !checked;
             return (
               <label
                 key={option.value}
-                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-muted"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-muted data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-60"
+                data-disabled={disabled}
               >
                 <Checkbox
                   checked={checked}
+                  disabled={disabled}
                   onCheckedChange={(nextChecked) =>
                     toggleOption(option.value, nextChecked === true)
                   }

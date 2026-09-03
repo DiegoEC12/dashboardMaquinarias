@@ -1,34 +1,74 @@
 import raw from "@/data/dataset.json";
 import type { Dataset, Evaluation, Indicator, Question } from "./types";
+import { normalizeTipoEvaluacion } from "@/lib/tipo-evaluacion";
+
+type LegacyRawDataset = {
+  meta?: Record<string, unknown>;
+  evaluaciones?: LegacyEvaluationRow[];
+  evaluations?: LegacyEvaluationRow[];
+  indicadores?: LegacyIndicatorRow[];
+  indicators?: LegacyIndicatorRow[];
+  indicatorResults?: Dataset["indicatorResults"];
+  questionResponses?: Dataset["questionResponses"];
+  questions?: Question[];
+};
+
+type LegacyEvaluationRow = {
+  id?: unknown;
+  periodo?: unknown;
+  concesionaria?: unknown;
+  marca?: unknown;
+  ubicacion?: unknown;
+  tipoEvaluacion?: unknown;
+};
+
+type LegacyIndicatorRow = {
+  ev?: unknown;
+  idEvaluacion?: unknown;
+  n?: unknown;
+  orden?: unknown;
+  id?: unknown;
+  idIndicador?: unknown;
+  nombre?: unknown;
+  nombreIndicador?: unknown;
+  peso?: unknown;
+  cumpl?: unknown;
+  resultado?: unknown;
+};
 
 /** Normaliza distintos formatos de dataset a la interfaz `Dataset` usada por la app. */
-function normalize(rawData: any): Dataset {
+function normalize(rawData: LegacyRawDataset | Dataset): Dataset {
   // Caso ya normalizado (mismo shape esperado)
   if (rawData && rawData.indicators && rawData.evaluations && rawData.indicatorResults) {
     return rawData as Dataset;
   }
 
-  const meta = rawData.meta ?? {};
+  const legacyData = rawData as LegacyRawDataset;
+  const meta = legacyData.meta ?? {};
+  const rawEvaluations = legacyData.evaluaciones ?? legacyData.evaluations ?? [];
 
   // Normalizar evaluaciones (from `evaluaciones` Spanish key)
-  const evaluations: Evaluation[] = (rawData.evaluaciones || rawData.evaluations || []).map(
-    (e: any) => ({
-      id: e.id,
-      periodo: e.periodo ?? meta.periodo ?? null,
-      concesionaria: e.concesionaria ?? "",
-      marca: e.marca ?? "",
-      ubicacion: e.ubicacion ?? "",
-      tipoEvaluacion: e.tipoEvaluacion ?? "Venta",
-      // Derivar tipoEmpresa: si la concesionaria literal es 'MAQUINARIAS', se considera Maquinarias
-      tipoEmpresa:
-        e.concesionaria && String(e.concesionaria).toUpperCase() === "MAQUINARIAS"
-          ? "MAQUINARIAS"
-          : "COMPETENCIA",
-    }),
-  );
+  const evaluations: Evaluation[] = rawEvaluations.map((e) => ({
+    id: String(e.id ?? ""),
+    periodo:
+      typeof e.periodo === "string"
+        ? e.periodo
+        : typeof meta["periodo"] === "string"
+          ? meta["periodo"]
+          : "",
+    concesionaria: String(e.concesionaria ?? ""),
+    marca: String(e.marca ?? ""),
+    ubicacion: String(e.ubicacion ?? ""),
+    tipoEvaluacion: normalizeTipoEvaluacion(e.tipoEvaluacion),
+    // Derivar tipoEmpresa: si la concesionaria literal es 'MAQUINARIAS', se considera Maquinarias
+    tipoEmpresa:
+      e.concesionaria && String(e.concesionaria).toUpperCase() === "MAQUINARIAS"
+        ? "MAQUINARIAS"
+        : "COMPETENCIA",
+  }));
 
   // Construir indicadores únicos y resultados desde `indicadores` (spanish)
-  const rawInds: any[] = rawData.indicadores || rawData.indicators || [];
+  const rawInds = (legacyData.indicadores ?? legacyData.indicators ?? []) as LegacyIndicatorRow[];
   const indicatorsMap = new Map<string, Indicator>();
   const indicatorResults: {
     idEvaluacion: string;
@@ -39,18 +79,41 @@ function normalize(rawData: any): Dataset {
 
   for (const ri of rawInds) {
     // Algunos registros vienen por-evaluación: tienen `ev` (evaluation id) y `n` (número)
-    const evId = ri.ev ?? ri.idEvaluacion ?? null;
-    const n = ri.n ?? ri.orden ?? null;
+    const evId =
+      typeof ri.ev === "string"
+        ? ri.ev
+        : typeof ri.idEvaluacion === "string"
+          ? ri.idEvaluacion
+          : null;
+    const nRaw = ri.n ?? ri.orden ?? null;
+    const n = typeof nRaw === "number" ? nRaw : Number(nRaw ?? NaN);
     const idIndicador = n
       ? `IND_${String(n).padStart(2, "0")}`
-      : ri.id || ri.idIndicador || `IND_${Math.random().toString(36).slice(2, 7)}`;
+      : typeof ri.id === "string"
+        ? ri.id
+        : typeof ri.idIndicador === "string"
+          ? ri.idIndicador
+          : `IND_${Math.random().toString(36).slice(2, 7)}`;
+    const resultado =
+      typeof ri.cumpl === "number"
+        ? ri.cumpl
+        : typeof ri.resultado === "number"
+          ? ri.resultado
+          : null;
+    const peso = typeof ri.peso === "number" ? ri.peso : 0;
 
     // Asegurar que el indicador esté en el mapa
     if (!indicatorsMap.has(idIndicador)) {
+      const nombre =
+        typeof ri.nombre === "string"
+          ? ri.nombre
+          : typeof ri.nombreIndicador === "string"
+            ? ri.nombreIndicador
+            : `Indicador ${n ?? idIndicador}`;
       indicatorsMap.set(idIndicador, {
         id: idIndicador,
-        nombre: ri.nombre ?? ri.nombreIndicador ?? `Indicador ${n ?? idIndicador}`,
-        peso: typeof ri.peso === "number" ? ri.peso : 0,
+        nombre,
+        peso,
         orden: typeof n === "number" ? n : 0,
       });
     }
@@ -59,8 +122,8 @@ function normalize(rawData: any): Dataset {
       indicatorResults.push({
         idEvaluacion: evId,
         idIndicador,
-        resultado: ri.cumpl ?? ri.resultado ?? null,
-        peso: typeof ri.peso === "number" ? ri.peso : 0,
+        resultado,
+        peso,
       });
     }
   }
@@ -77,7 +140,7 @@ function normalize(rawData: any): Dataset {
   };
 }
 
-export const dataset = normalize(raw as unknown as any);
+export const dataset = normalize(raw as LegacyRawDataset);
 const initialDataset = JSON.parse(JSON.stringify(dataset)) as Dataset;
 
 export function replaceDataset(next: Dataset) {
@@ -95,18 +158,14 @@ export function resetDataset() {
 
 export const MAQUINARIAS = "Maquinarias";
 
-const indicatorById = new Map<string, Indicator>(dataset.indicators.map((i) => [i.id, i]));
-const questionById = new Map<string, Question>(dataset.questions.map((q) => [q.id, q]));
-const evaluationById = new Map<string, Evaluation>(dataset.evaluations.map((e) => [e.id, e]));
-
 export function getIndicator(id: string) {
-  return indicatorById.get(id);
+  return dataset.indicators.find((indicator) => indicator.id === id);
 }
 export function getQuestion(id: string) {
-  return questionById.get(id);
+  return dataset.questions.find((question) => question.id === id);
 }
 export function getEvaluation(id: string) {
-  return evaluationById.get(id);
+  return dataset.evaluations.find((evaluation) => evaluation.id === id);
 }
 
 export function isMaquinarias(concesionaria: string) {

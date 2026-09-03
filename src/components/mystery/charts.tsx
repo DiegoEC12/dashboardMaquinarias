@@ -95,7 +95,7 @@ export function DumbbellChart({
 }) {
   return (
     <div className="flex flex-col">
-      <div className="mb-2 flex items-center gap-4 pl-[210px] text-[11px] font-semibold text-muted-foreground max-md:pl-0">
+      <div className="mb-2 flex items-center gap-4 pl-52.5 text-[11px] font-semibold text-muted-foreground max-md:pl-0">
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-primary" /> Maquinarias
         </span>
@@ -131,7 +131,7 @@ export function DumbbellChart({
               {maqP !== null && compP !== null && (
                 <span
                   className={cn(
-                    "absolute top-1/2 h-[5px] -translate-y-1/2 rounded-full",
+                    "absolute top-1/2 h-1.25 -translate-y-1/2 rounded-full",
                     positive ? "bg-success/50" : "bg-danger/50",
                   )}
                   style={{ left: `${left}%`, width: `${width}%` }}
@@ -180,10 +180,7 @@ export function RankingBars({
   selectedKey?: string | null;
   onSelect?: (key: string) => void;
 }) {
-  const max = useMemo(
-    () => Math.max(0.0001, ...rows.map((r) => r.score ?? 0)),
-    [rows],
-  );
+  const max = useMemo(() => Math.max(0.0001, ...rows.map((r) => r.score ?? 0)), [rows]);
   return (
     <div className="flex flex-col">
       {rows.map((r, i) => {
@@ -221,7 +218,7 @@ export function RankingBars({
                   <span className="text-sm font-bold tabular-nums">{fmtPct(r.score)}</span>
                   <span
                     className={cn(
-                      "w-[74px] text-right text-xs font-semibold tabular-nums",
+                      "w-18.5 text-right text-xs font-semibold tabular-nums",
                       r.brecha === null
                         ? "text-muted-foreground"
                         : r.brecha >= 0
@@ -277,6 +274,7 @@ export function Heatmap({
   showNumericHeaders = false,
   compact = false,
   showHoverFooter = false,
+  maxViewportHeightClass = "max-h-105",
 }: {
   rows: { key: string; label: string; sub?: string }[];
   columns: { id: string; label: string }[];
@@ -288,108 +286,135 @@ export function Heatmap({
   showNumericHeaders?: boolean;
   compact?: boolean;
   showHoverFooter?: boolean;
+  maxViewportHeightClass?: string;
 }) {
   const [hovered, setHovered] = useState<{
     rowLabel: string;
-    rowSub?: string;
+    rowSub: string | undefined;
     columnLabel: string;
     value: number | null;
   } | null>(null);
 
   return (
     <div>
-      <div className="overflow-x-auto scrollbar-thin">
-        <table className={cn("w-full border-separate", compact ? "border-spacing-0.5" : "border-spacing-1")}>
-        <thead>
-          <tr>
-            <th
-              className={cn(
-                "sticky left-0 z-10 bg-background p-1 text-left font-semibold tracking-wide text-muted-foreground uppercase",
-                compact ? "min-w-[150px] text-[10px]" : "min-w-[180px] text-[11px]",
-              )}
-            >
-              Local
-            </th>
-            {columns.map((c, index) => (
-              <th key={c.id} className={cn("p-1 align-bottom", compact ? "min-w-[62px]" : "min-w-[86px]")}>
-                <button
-                  onClick={() => onColSelect?.(c.id)}
-                  className={cn(
-                    "transition-ui mx-auto block leading-tight font-semibold text-muted-foreground uppercase hover:text-primary",
-                    compact ? "max-w-[70px] text-[10px]" : "max-w-[100px] text-[10px]",
-                  )}
-                  title={c.label}
-                >
-                  {showNumericHeaders ? (
-                    <span>{index + 1}</span>
-                  ) : (
-                    <span className="line-clamp-3">{c.label}</span>
-                  )}
-                </button>
+      <div className={cn("overflow-auto scrollbar-thin pr-1", maxViewportHeightClass)}>
+        <table
+          className={cn(
+            "w-full border-separate",
+            compact ? "border-spacing-0.5" : "border-spacing-1",
+          )}
+        >
+          <thead>
+            <tr>
+              <th
+                className={cn(
+                  "sticky top-0 left-0 z-20 bg-background p-1 text-left font-semibold tracking-wide text-muted-foreground uppercase",
+                  compact ? "min-w-36 text-[10px]" : "min-w-45 text-[11px]",
+                )}
+              >
+                Local
               </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.key}>
-              <td className="sticky left-0 z-10 bg-background p-1">
-                <button
-                  onClick={() => onRowSelect?.(r.key)}
+              {columns.map((c, index) => (
+                <th
+                  key={c.id}
                   className={cn(
-                    "transition-ui block w-full truncate rounded-md px-2 text-left font-medium hover:bg-accent",
-                    compact ? "py-1 text-[11px]" : "py-1.5 text-[12px]",
-                    selectedRow === r.key ? "bg-accent text-primary" : "text-foreground",
+                    "sticky top-0 z-10 bg-background p-1 align-bottom",
+                    compact ? "min-w-15.5" : "min-w-21.5",
                   )}
                 >
-                  {r.label}
-                  {r.sub && (
-                    <span className={cn("block font-normal text-muted-foreground", compact ? "text-[9px]" : "text-[10px]")}>
-                      {r.sub}
-                    </span>
-                  )}
-                </button>
-              </td>
-              {columns.map((c) => {
-                const { value, n } = cell(r.key, c.id);
-                const status = statusFor(value);
-                const bm = benchmark(c.id);
-                const gap = value !== null && bm !== null ? value - bm : null;
-                const bg =
-                  status === "alto"
-                    ? "bg-success/15 text-success"
-                    : status === "medio"
-                      ? "bg-warning/15 text-warning"
-                      : status === "critico"
-                        ? "bg-danger/15 text-danger"
-                        : "bg-muted text-muted-foreground/60";
-                return (
-                  <td key={c.id}>
-                    <button
-                      onClick={() => onColSelect?.(c.id)}
-                      onMouseEnter={() =>
-                        setHovered({ rowLabel: r.label, rowSub: r.sub, columnLabel: c.label, value })
-                      }
-                      onMouseLeave={() => setHovered(null)}
-                      onFocus={() =>
-                        setHovered({ rowLabel: r.label, rowSub: r.sub, columnLabel: c.label, value })
-                      }
-                      className={cn(
-                        "transition-ui flex w-full items-center justify-center rounded-md font-bold tabular-nums hover:ring-2 hover:ring-primary/40",
-                        compact ? "h-8 text-[11px]" : "h-10 text-[12px]",
-                        bg,
-                      )}
-                      title={`${r.label}\n${c.label}\nResultado: ${fmtPct(value)}\nBenchmark: ${fmtPct(bm)}\nBrecha: ${fmtPp(gap)}\nEvaluaciones: ${n}`}
-                    >
-                      {value === null ? "—" : fmtPct(value, 0)}
-                    </button>
-                  </td>
-                );
-              })}
+                  <button
+                    onClick={() => onColSelect?.(c.id)}
+                    className={cn(
+                      "transition-ui mx-auto block leading-tight font-semibold text-muted-foreground uppercase hover:text-primary",
+                      compact ? "max-w-16 text-[10px]" : "max-w-25 text-[10px]",
+                    )}
+                    title={c.label}
+                  >
+                    {showNumericHeaders ? (
+                      <span>{index + 1}</span>
+                    ) : (
+                      <span className="line-clamp-3">{c.label}</span>
+                    )}
+                  </button>
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.key}>
+                <td className="sticky left-0 z-10 bg-background p-1">
+                  <button
+                    onClick={() => onRowSelect?.(r.key)}
+                    className={cn(
+                      "transition-ui block w-full truncate rounded-md px-2 text-left font-medium hover:bg-accent",
+                      compact ? "py-0.5 text-[10px]" : "py-1.5 text-[12px]",
+                      selectedRow === r.key ? "bg-accent text-primary" : "text-foreground",
+                    )}
+                  >
+                    {r.label}
+                    {r.sub && (
+                      <span
+                        className={cn(
+                          "block font-normal text-muted-foreground",
+                          compact ? "text-[9px]" : "text-[10px]",
+                        )}
+                      >
+                        {r.sub}
+                      </span>
+                    )}
+                  </button>
+                </td>
+                {columns.map((c) => {
+                  const { value, n } = cell(r.key, c.id);
+                  const status = statusFor(value);
+                  const bm = benchmark(c.id);
+                  const gap = value !== null && bm !== null ? value - bm : null;
+                  const bg =
+                    status === "alto"
+                      ? "bg-success/15 text-success"
+                      : status === "medio"
+                        ? "bg-warning/15 text-warning"
+                        : status === "critico"
+                          ? "bg-danger/15 text-danger"
+                          : "bg-muted text-muted-foreground/60";
+                  return (
+                    <td key={c.id}>
+                      <button
+                        onClick={() => onColSelect?.(c.id)}
+                        onMouseEnter={() =>
+                          setHovered({
+                            rowLabel: r.label,
+                            rowSub: r.sub,
+                            columnLabel: c.label,
+                            value,
+                          })
+                        }
+                        onMouseLeave={() => setHovered(null)}
+                        onFocus={() =>
+                          setHovered({
+                            rowLabel: r.label,
+                            rowSub: r.sub,
+                            columnLabel: c.label,
+                            value,
+                          })
+                        }
+                        className={cn(
+                          "transition-ui flex w-full items-center justify-center rounded-md font-bold tabular-nums hover:ring-2 hover:ring-primary/40",
+                          compact ? "h-7 text-[10px]" : "h-10 text-[12px]",
+                          bg,
+                        )}
+                        title={`${r.label}\n${c.label}\nResultado: ${fmtPct(value)}\nBenchmark: ${fmtPct(bm)}\nBrecha: ${fmtPp(gap)}\nEvaluaciones: ${n}`}
+                      >
+                        {value === null ? "—" : fmtPct(value, 0)}
+                      </button>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {showHoverFooter && (
@@ -402,7 +427,9 @@ export function Heatmap({
           {hovered ? (
             <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
               <span className="font-semibold">{hovered.rowLabel}</span>
-              {hovered.rowSub ? <span className="text-muted-foreground">{hovered.rowSub}</span> : null}
+              {hovered.rowSub ? (
+                <span className="text-muted-foreground">{hovered.rowSub}</span>
+              ) : null}
               <span className="text-muted-foreground">·</span>
               <span>{hovered.columnLabel}</span>
               <span className="font-display font-bold">{fmtPct(hovered.value)}</span>
@@ -418,11 +445,7 @@ export function Heatmap({
   );
 }
 
-export function MiniBars({
-  rows,
-}: {
-  rows: { label: string; value: number | null; n: number }[];
-}) {
+export function MiniBars({ rows }: { rows: { label: string; value: number | null; n: number }[] }) {
   const sorted = [...rows].sort((a, b) => (b.value ?? -1) - (a.value ?? -1));
   const max = Math.max(0.0001, ...sorted.map((r) => r.value ?? 0));
   return (
@@ -451,7 +474,20 @@ export function MiniBars({
                 style={{ width: `${((r.value ?? 0) / max) * 100}%` }}
               />
             </span>
-            <span className={cn("text-right text-[12px] font-bold tabular-nums", r.value !== null ? (status === "alto" ? "text-success" : status === "medio" ? "text-warning" : "text-danger") : "text-muted-foreground")}>{fmtPct(r.value, 0)}</span>
+            <span
+              className={cn(
+                "text-right text-[12px] font-bold tabular-nums",
+                r.value !== null
+                  ? status === "alto"
+                    ? "text-success"
+                    : status === "medio"
+                      ? "text-warning"
+                      : "text-danger"
+                  : "text-muted-foreground",
+              )}
+            >
+              {fmtPct(r.value, 0)}
+            </span>
           </div>
         );
       })}

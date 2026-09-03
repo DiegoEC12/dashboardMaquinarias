@@ -20,11 +20,12 @@ export const Route = createFileRoute("/indicadores")({
 });
 
 function IndicadoresPage() {
-  const { filters } = useFilters();
+  const { filters, dataVersion } = useFilters();
   const [selectedIndicator, setSelectedIndicator] = useState<number | null>(null);
   const [selectedLocal, setSelectedLocal] = useState<string | null>(null);
 
-  const scopes = useMemo(() => getScopes(filters), [filters]);
+  void dataVersion;
+  const scopes = getScopes(filters);
   const evs = scopes.selection;
 
   const locales = useMemo(() => {
@@ -61,9 +62,9 @@ function IndicadoresPage() {
   }, [locales, selectedIndicator]);
 
   const getBarClass = (percentage: number) =>
-    percentage >= 85 ? "bg-alto" : percentage >= 70 ? "bg-medio" : "bg-bajo";
+    percentage > 70 ? "bg-alto" : percentage >= 50 ? "bg-medio" : "bg-bajo";
   const getTextClass = (percentage: number) =>
-    percentage >= 85 ? "text-success" : percentage >= 70 ? "text-warning" : "text-danger";
+    percentage > 70 ? "text-success" : percentage >= 50 ? "text-warning" : "text-danger";
 
   const sidebarDetail = useMemo(() => {
     if (selectedIndicator === null || !selectedLocal) return null;
@@ -87,17 +88,6 @@ function IndicadoresPage() {
     };
   }, [selectedIndicator, selectedLocal, locales, localScores]);
 
-  if (evs.length === 0) {
-    return (
-      <div className="min-h-screen bg-background">
-        <PageHeader title="Indicadores" description="Desempeño de los indicadores por local." />
-        <div className="p-5 md:p-8">
-          <EmptyState />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
@@ -107,6 +97,12 @@ function IndicadoresPage() {
       <CompactFilterControls />
 
       <main className="mx-auto max-w-300 space-y-6 px-4 py-6 lg:px-8">
+        {evs.length === 0 && (
+          <section className="rounded-xl border border-dashed border-border bg-card p-5">
+            <EmptyState />
+          </section>
+        )}
+
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <section className="card-suave animar-entrada px-5 py-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -118,8 +114,13 @@ function IndicadoresPage() {
               </div>
             </div>
 
-            <Accordion type="single" collapsible className="mt-5">
-              {indicatorList.map((indicator) => (
+            {indicatorList.length === 0 ? (
+              <p className="mt-5 text-sm text-muted-foreground">
+                No hay indicadores para mostrar con los filtros actuales.
+              </p>
+            ) : (
+              <Accordion type="single" collapsible className="mt-5">
+                {indicatorList.map((indicator) => (
                 <AccordionItem
                   key={indicator.n}
                   value={String(indicator.n)}
@@ -210,8 +211,9 @@ function IndicadoresPage() {
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-              ))}
-            </Accordion>
+                ))}
+              </Accordion>
+            )}
           </section>
 
           <aside className="rounded-xl border border-border bg-card p-5">

@@ -1,4 +1,5 @@
 import raw from "@/data/dataset.json";
+import { includesTipoEvaluacion, normalizeTipoEvaluacion } from "@/lib/tipo-evaluacion";
 
 export type Evaluacion = {
   id: string;
@@ -37,7 +38,7 @@ const data = raw as unknown as {
 
 export const evaluaciones: Evaluacion[] = data.evaluaciones.map((e) => ({
   ...e,
-  tipoEvaluacion: e.tipoEvaluacion ?? "Venta",
+  tipoEvaluacion: normalizeTipoEvaluacion(e.tipoEvaluacion ?? "Venta"),
 }));
 export const indicadores = data.indicadores;
 export const preguntas = data.preguntas;
@@ -66,9 +67,7 @@ function normalizeKeyPart(value: string) {
 }
 
 export function localKey(concesionaria: string, marca: string, ubicacion: string) {
-  return [concesionaria, marca, ubicacion]
-    .map(normalizeKeyPart)
-    .join("|");
+  return [concesionaria, marca, ubicacion].map(normalizeKeyPart).join("|");
 }
 
 export function title(value: string) {
@@ -101,7 +100,7 @@ export function filterEvaluaciones(f: Filters) {
       (!f.concesionaria || f.concesionaria.includes(e.concesionaria)) &&
       (!f.marca || f.marca.includes(e.marca)) &&
       (!f.ubicacion || f.ubicacion.includes(e.ubicacion)) &&
-      (!f.tipoEvaluacion || f.tipoEvaluacion.includes(e.tipoEvaluacion)),
+      includesTipoEvaluacion(f.tipoEvaluacion, e.tipoEvaluacion),
   );
 }
 
@@ -120,7 +119,7 @@ export const pct = (value: number) => `${(value * 100).toFixed(1)}%`;
 export type Tone = "alto" | "medio" | "critico";
 
 export function toneOf(value: number): Tone {
-  if (value >= 0.7) return "alto";
+  if (value > 0.7) return "alto";
   if (value >= 0.5) return "medio";
   return "critico";
 }

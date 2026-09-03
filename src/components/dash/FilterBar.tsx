@@ -4,13 +4,10 @@ import logoAsset from "@/assets/logo-maquinarias.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { MultiFilterSelect } from "./MultiFilterSelect";
 import { useFilters } from "@/lib/mystery/filter-context";
+import { normalizeTipoEvaluacion } from "@/lib/tipo-evaluacion";
 import {
-  concesionarias,
   evaluaciones,
-  indicadorCatalogo,
-  marcas,
   title,
-  ubicaciones,
   type Filters,
 } from "@/lib/analytics";
 
@@ -39,9 +36,9 @@ function FilterSelect({
 
 export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { importExcel, importError, resetImportedData } = useFilters();
+  const { importExcel, importError, resetImportedData, options } = useFilters();
 
-  const tipoEvaluacionOptions = [...new Set(evaluaciones.map((evaluation) => evaluation.tipoEvaluacion).filter(Boolean))]
+  const tipoEvaluacionOptions = [...new Set(evaluaciones.map((evaluation) => normalizeTipoEvaluacion(evaluation.tipoEvaluacion)).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b, "es"))
     .map((type) => ({ value: type, label: type }));
 
@@ -84,10 +81,10 @@ export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
               size="sm"
               onClick={resetImportedData}
               className="shrink-0 gap-2 rounded-full text-muted-foreground hover:text-primary"
-              title="Restaurar dataset original"
+              title="Limpiar datos importados"
             >
               <RotateCcw className="h-4 w-4" />
-              <span className="hidden xl:inline">Restaurar datos</span>
+              <span className="hidden xl:inline">Limpiar datos</span>
             </Button>
             <Button
               variant="ghost"
@@ -112,30 +109,31 @@ export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
             label="Concesionaria"
             value={filters.concesionaria}
             onValueChange={(v) => onChange({ concesionaria: v })}
-            options={concesionarias.map((c) => ({ value: c, label: title(c) }))}
+            options={options.concesionarias.map((c) => ({ value: c, label: title(c) }))}
           />
           <FilterSelect
             label="Marca"
             value={filters.marca}
             onValueChange={(v) => onChange({ marca: v })}
-            options={marcas.map((m) => ({ value: m, label: title(m) }))}
+            options={options.marcas.map((m) => ({ value: m, label: title(m) }))}
           />
           <FilterSelect
             label="Ubicación"
             value={filters.ubicacion}
             onValueChange={(v) => onChange({ ubicacion: v })}
-            options={ubicaciones.map((u) => ({ value: u, label: title(u) }))}
+            options={options.ubicaciones.map((u) => ({ value: u, label: title(u) }))}
           />
           <FilterSelect
             label="Indicador"
             value={filters.indicador}
             onValueChange={(v) => onChange({ indicador: v })}
-            options={indicadorCatalogo.map((i) => ({ value: String(i.n), label: i.nombre }))}
+            options={options.indicadores}
           />
           <MultiFilterSelect
             label="Tipo de evaluación"
             values={filters.tipoEvaluacion}
             options={tipoEvaluacionOptions}
+            singleOrAll
             onChange={(values) => onChange({ tipoEvaluacion: values })}
           />
         </div>

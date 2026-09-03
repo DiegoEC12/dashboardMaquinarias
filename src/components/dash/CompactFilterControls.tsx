@@ -2,8 +2,12 @@ import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
 import { useFilters } from "@/lib/mystery/filter-context";
-import { dataset } from "@/lib/mystery/dataset";
 import { MultiFilterSelect } from "./MultiFilterSelect";
+
+function indicatorSelectionToId(value: string): string {
+  const n = Number(value);
+  return Number.isFinite(n) ? `IND_${String(n).padStart(2, "0")}` : value;
+}
 
 export function CompactFilterControls() {
   const {
@@ -16,10 +20,6 @@ export function CompactFilterControls() {
     openIndicador,
     clearIndicador,
   } = useFilters();
-
-  const indicadorOptions = useMemo(() => {
-    return dataset.indicators.map((i) => ({ value: String(i.orden), label: i.nombre }));
-  }, []);
 
   const activeCount = useMemo(
     () => (hasFilters ? activeLabel.split(" · ").length : 0),
@@ -51,11 +51,11 @@ export function CompactFilterControls() {
           <MultiFilterSelect
             label="Indicador"
             values={filters.indicador}
-            options={indicadorOptions}
+            options={options.indicadores}
             onChange={(values) => {
               setFilter("indicador", values);
-              if (values?.length === 1)
-                openIndicador(`IND_${String(Number(values[0])).padStart(2, "0")}`);
+              const first = values?.[0];
+              if (values?.length === 1 && first) openIndicador(indicatorSelectionToId(first));
               else clearIndicador();
             }}
           />
@@ -63,6 +63,7 @@ export function CompactFilterControls() {
             label="Tipo de evaluación"
             values={filters.tipoEvaluacion}
             options={options.tiposEvaluacion.map((type) => ({ value: type, label: type }))}
+            singleOrAll
             onChange={(values) => setFilter("tipoEvaluacion", values)}
           />
         </div>
