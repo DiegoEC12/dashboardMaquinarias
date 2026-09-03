@@ -1,7 +1,9 @@
-import { RotateCcw } from "lucide-react";
+import { FileUp, RotateCcw } from "lucide-react";
+import { useRef } from "react";
 import logoAsset from "@/assets/logo-maquinarias.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { MultiFilterSelect } from "./MultiFilterSelect";
+import { useFilters } from "@/lib/mystery/filter-context";
 import {
   concesionarias,
   indicadorCatalogo,
@@ -35,6 +37,9 @@ function FilterSelect({
 }
 
 export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { importExcel, importError, resetImportedData } = useFilters();
+
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-350 flex-col gap-3 px-4 py-3 lg:px-8">
@@ -47,21 +52,54 @@ export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
               <p className="truncate text-sm text-muted-foreground">Mystery Shopping</p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onReset}
-            disabled={activeCount === 0}
-            className="shrink-0 gap-2 rounded-full text-muted-foreground hover:text-primary"
-          >
-            <RotateCcw className="h-4 w-4" />
-            <span className="hidden sm:inline">Limpiar filtros</span>
-            {activeCount > 0 && (
-              <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
-                {activeCount}
-              </span>
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void importExcel(file);
+                event.target.value = "";
+              }}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              className="shrink-0 gap-2 rounded-full text-muted-foreground hover:text-primary"
+              title="Importar evaluaciones desde Excel"
+            >
+              <FileUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Importar Excel</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetImportedData}
+              className="shrink-0 gap-2 rounded-full text-muted-foreground hover:text-primary"
+              title="Restaurar dataset original"
+            >
+              <RotateCcw className="h-4 w-4" />
+              <span className="hidden xl:inline">Restaurar datos</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onReset}
+              disabled={activeCount === 0}
+              className="shrink-0 gap-2 rounded-full text-muted-foreground hover:text-primary"
+            >
+              <RotateCcw className="h-4 w-4" />
+              <span className="hidden sm:inline">Limpiar filtros</span>
+              {activeCount > 0 && (
+                <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
+                  {activeCount}
+                </span>
+              )}
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
@@ -101,6 +139,7 @@ export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
             onChange={(values) => onChange({ tipoEvaluacion: values })}
           />
         </div>
+        {importError && <p className="text-xs text-destructive">{importError}</p>}
       </div>
     </header>
   );

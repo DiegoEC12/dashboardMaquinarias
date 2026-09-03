@@ -56,6 +56,12 @@ export const indicadorCatalogo = Array.from(
 
 export const labelOf = (e: Evaluacion) => `${title(e.concesionaria)} ${title(e.marca)}`;
 
+export function localKey(concesionaria: string, marca: string, ubicacion: string) {
+  return [concesionaria, marca, ubicacion]
+    .map((value) => value.trim().toLocaleUpperCase("es"))
+    .join("|");
+}
+
 export function title(value: string) {
   return value
     .toLowerCase()

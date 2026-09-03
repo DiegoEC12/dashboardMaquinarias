@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 import { useNavigate } from "@tanstack/react-router";
 import { EMPTY_FILTERS, type GlobalFilters } from "./calculations";
 import { dataset } from "./dataset";
+import { importExcelFile, resetImportedData } from "@/lib/excel-import";
 
 interface FilterContextValue {
   filters: GlobalFilters;
@@ -24,6 +25,10 @@ interface FilterContextValue {
   selectedPreguntaId: string | null;
   openPregunta: (indicadorId: string, preguntaId: string) => void;
   clearPregunta: () => void;
+  importExcel: (file: File) => Promise<void>;
+  importError: string | null;
+  dataVersion: number;
+  resetImportedData: () => void;
 }
 
 const FilterContext = createContext<FilterContextValue | null>(null);
@@ -33,6 +38,8 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const [selectedIndicadorId, setSelectedIndicadorId] = useState<string | null>(null);
   const [selectedEvaluacionId, setSelectedEvaluacionId] = useState<string | null>(null);
   const [selectedPreguntaId, setSelectedPreguntaId] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [dataVersion, setDataVersion] = useState(0);
   const navigate = useNavigate();
 
   const setFilter = useCallback((key: keyof GlobalFilters, value: string[] | null) => {
@@ -78,7 +85,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       ),
       tiposEvaluacion: ["Venta", "Callcenter", "Seminuevos", "Posventa"],
     };
-  }, [filters.periodo, filters.concesionaria, filters.marca]);
+  }, [dataVersion, filters.periodo, filters.concesionaria, filters.marca]);
 
   const hasFilters = Object.values(filters).some((values) => values !== null && values.length > 0);
   const activeLabel = hasFilters
@@ -117,6 +124,22 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   const clearPregunta = useCallback(() => setSelectedPreguntaId(null), []);
 
+  const importExcel = useCallback(async (file: File) => {
+    try {
+      setImportError(null);
+      await importExcelFile(file);
+      setDataVersion((version) => version + 1);
+    } catch (error) {
+      setImportError(error instanceof Error ? error.message : "No se pudo importar el Excel.");
+    }
+  }, []);
+
+  const restoreDataset = useCallback(() => {
+    resetImportedData();
+    setImportError(null);
+    setDataVersion((version) => version + 1);
+  }, []);
+
   const value: FilterContextValue = {
     filters,
     setFilter,
@@ -132,6 +155,10 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     selectedPreguntaId,
     openPregunta,
     clearPregunta,
+    importExcel,
+    importError,
+    dataVersion,
+    resetImportedData: restoreDataset,
   };
 
   return <FilterContext.Provider value={value}>{children}</FilterContext.Provider>;

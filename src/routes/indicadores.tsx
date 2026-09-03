@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { getScopes, indicatorScore } from "@/lib/mystery/calculations";
-import { indicadorCatalogo, preguntas } from "@/lib/analytics";
+import { indicadorCatalogo, localKey, preguntas } from "@/lib/analytics";
 import { useFilters } from "@/lib/mystery/filter-context";
 import CompactFilterControls from "@/components/dash/CompactFilterControls";
 
@@ -30,10 +30,10 @@ function IndicadoresPage() {
   const locales = useMemo(() => {
     const map = new Map<string, { id: string; nombre: string; evIds: string[] }>();
     for (const evaluation of evs) {
-      const id = `${evaluation.concesionaria}|${evaluation.marca}|${evaluation.ubicacion}`;
+      const id = localKey(evaluation.concesionaria, evaluation.marca, evaluation.ubicacion);
       const nombre = `${evaluation.concesionaria} · ${evaluation.marca}${evaluation.ubicacion ? ` · ${evaluation.ubicacion}` : ""}`;
       const current = map.get(id) ?? { id, nombre, evIds: [] };
-      current.evIds.push(evaluation.id);
+      if (!current.evIds.includes(evaluation.id)) current.evIds.push(evaluation.id);
       map.set(id, current);
     }
     return Array.from(map.values());

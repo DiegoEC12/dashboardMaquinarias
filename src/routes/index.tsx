@@ -14,6 +14,7 @@ import {
   scoreOf as scoreForEval,
   type Filters,
 } from "@/lib/analytics";
+import { useFilters } from "@/lib/mystery/filter-context";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,10 +37,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
+  const { dataVersion } = useFilters();
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const evs = useMemo(() => filterEvaluaciones(filters), [filters]);
+  const evs = useMemo(() => filterEvaluaciones(filters), [filters, dataVersion]);
   const scoreOf = useMemo(
     () => (e: Parameters<typeof scoreForEval>[0]) => {
       if (!filters.indicador?.length) return e.puntaje;

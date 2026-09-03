@@ -78,6 +78,20 @@ function normalize(rawData: any): Dataset {
 }
 
 export const dataset = normalize(raw as unknown as any);
+const initialDataset = JSON.parse(JSON.stringify(dataset)) as Dataset;
+
+export function replaceDataset(next: Dataset) {
+  dataset.meta = next.meta;
+  dataset.indicators.splice(0, dataset.indicators.length, ...next.indicators);
+  dataset.questions.splice(0, dataset.questions.length, ...next.questions);
+  dataset.evaluations.splice(0, dataset.evaluations.length, ...next.evaluations);
+  dataset.indicatorResults.splice(0, dataset.indicatorResults.length, ...next.indicatorResults);
+  dataset.questionResponses.splice(0, dataset.questionResponses.length, ...next.questionResponses);
+}
+
+export function resetDataset() {
+  replaceDataset(initialDataset);
+}
 
 export const MAQUINARIAS = "Maquinarias";
 

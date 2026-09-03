@@ -14,6 +14,7 @@ import {
   statusFor,
   type GroupScore,
 } from "@/lib/mystery/calculations";
+import { localKey } from "@/lib/analytics";
 import { dataset } from "@/lib/mystery/dataset";
 import { fmtPct } from "@/lib/mystery/format";
 import { useFilters } from "@/lib/mystery/filter-context";
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/concesionarias")({
 });
 
 type SortMode = "mayor" | "menor" | "brecha-pos" | "brecha-neg";
-type Level = "concesionaria" | "marca" | "ubicacion" | "evaluacion";
+type Level = "concesionaria" | "marca" | "ubicacion" | "local";
 
 const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "mayor", label: "Mayor puntaje" },
@@ -62,7 +63,7 @@ function ConcesionariasPage() {
       ? "marca"
       : !drill.ubicacion
         ? "ubicacion"
-        : "evaluacion";
+        : "local";
 
   const drilled = useMemo(
     () =>
@@ -94,7 +95,7 @@ function ConcesionariasPage() {
             : groupScores(
                 drilled,
                 (e) => ({
-                  key: e.id,
+                  key: localKey(e.concesionaria, e.marca, e.ubicacion),
                   label: `${e.concesionaria} · ${e.marca}`,
                   extra: { marca: e.marca, ubicacion: e.ubicacion },
                 }),
@@ -118,14 +119,14 @@ function ConcesionariasPage() {
   const heatRows = useMemo(() => {
     const map = new Map<string, { key: string; label: string; sub: string; ids: string[] }>();
     for (const e of drilled) {
-      const key = `${e.concesionaria}|${e.marca}|${e.ubicacion}`;
+      const key = localKey(e.concesionaria, e.marca, e.ubicacion);
       const cur = map.get(key) ?? {
         key,
         label: e.concesionaria,
         sub: `${e.marca} · ${e.ubicacion}`,
         ids: [],
       };
-      cur.ids.push(e.id);
+      if (!cur.ids.includes(e.id)) cur.ids.push(e.id);
       map.set(key, cur);
     }
     return [...map.values()].sort((a, b) => {
@@ -149,7 +150,7 @@ function ConcesionariasPage() {
     if (level === "concesionaria") return drilled.filter((e) => e.concesionaria === selected.key);
     if (level === "marca") return drilled.filter((e) => e.marca === selected.key);
     if (level === "ubicacion") return drilled.filter((e) => e.ubicacion === selected.key);
-    return drilled.filter((e) => e.id === selected.key);
+    return drilled.filter((e) => localKey(e.concesionaria, e.marca, e.ubicacion) === selected.key);
   }, [selected, level, drilled]);
 
   const selectedIndicators = useMemo(() => {
@@ -161,18 +162,23 @@ function ConcesionariasPage() {
     }));
   }, [selectedEvals]);
 
-  const heatmapEvs = useMemo(() => {
-    return drilled.map((e) => ({
-      id: e.id,
-      concesionaria: e.concesionaria,
-      marca: e.marca,
-      ubicacion: e.ubicacion,
-      puntaje: calculateWeightedScore([e.id]) ?? 0,
-      resumen: null,
-      recomendaciones: null,
-      tipoEvaluacion: e.tipoEvaluacion,
-    }));
-  }, [drilled]);
+  const heatmapEvs = useMemo(
+    () =>
+      heatRows.map((row) => {
+        const evaluation = drilled.find((e) => row.ids.includes(e.id));
+        return {
+          id: row.key,
+          concesionaria: row.label,
+          marca: evaluation?.marca ?? "",
+          ubicacion: evaluation?.ubicacion ?? "",
+          puntaje: calculateWeightedScore(row.ids) ?? 0,
+          resumen: null,
+          recomendaciones: null,
+          tipoEvaluacion: evaluation?.tipoEvaluacion ?? "Venta",
+        };
+      }),
+    [drilled, heatRows],
+  );
 
   function handleRankingSelect(key: string) {
     setSelectedKey(key === selectedKey ? null : key);
@@ -183,7 +189,10 @@ function ConcesionariasPage() {
     if (level === "concesionaria") setDrill({ concesionaria: selected.key });
     else if (level === "marca") setDrill((d) => ({ ...d, marca: selected.key }));
     else if (level === "ubicacion") setDrill((d) => ({ ...d, ubicacion: selected.key }));
-    else openEvaluacion(selected.key);
+    else if (level === "local") {
+      const evaluationId = selectedEvals[0]?.id;
+      if (evaluationId) openEvaluacion(evaluationId);
+    }
     setSelectedKey(null);
   }
 
@@ -218,7 +227,7 @@ function ConcesionariasPage() {
     concesionaria: "concesionaria",
     marca: "marca",
     ubicacion: "ubicación",
-    evaluacion: "evaluación",
+    local: "local",
   }[level];
 
   return (
@@ -346,8 +355,8 @@ function ConcesionariasPage() {
                     onClick={handleDrillDown}
                     className="transition-ui mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                   >
-                    {level === "evaluacion"
-                      ? "Ver hallazgo de la visita"
+                    {level === "local"
+                      ? "Ver detalle de una visita"
                       : `Profundizar en ${selected.label}`}
                     <ArrowRight className="h-4 w-4" />
                   </button>
@@ -359,7 +368,7 @@ function ConcesionariasPage() {
                   </p>
                   <p className="max-w-xs text-[13px] text-muted-foreground">
                     Verás su puntaje, benchmark, brecha y desempeño por indicador, con opción de
-                    profundizar hasta la evaluación.
+                    profundizar hasta el local.
                   </p>
                 </div>
               )}
@@ -369,7 +378,7 @@ function ConcesionariasPage() {
           {/* Reemplazo: usar el mapa de Resumen Ejecutivo en lugar del heatmap original */}
           <section className="rounded-xl border border-border bg-card p-5">
             <SectionHeader
-              title="Mapa por evaluaciones"
+              title="Mapa por locales"
               description="Explora los locales del universo seleccionado. Click en un local para seleccionarlo en el panel."
             />
             {drilled.length === 0 ? (
@@ -377,8 +386,11 @@ function ConcesionariasPage() {
             ) : (
               <Heatmap
                 evs={heatmapEvs}
-                selected={level === "evaluacion" ? (selected ? selected.key : null) : null}
-                onSelect={(id: string) => openEvaluacion(id)}
+                selected={level === "local" ? (selected ? selected.key : null) : null}
+                onSelect={(id: string) => {
+                  const row = heatRows.find((item) => item.key === id);
+                  if (row?.ids[0]) openEvaluacion(row.ids[0]);
+                }}
               />
             )}
           </section>

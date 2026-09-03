@@ -75,3 +75,18 @@ Prueba realizada: servidor dev iniciado en http://localhost:8081/ — verificar 
 - [x] Mostrar todos los datos del Resumen Ejecutivo al cargar la aplicación.
 - [x] Dejar los filtros globales inicialmente en estado “Todas” con todas sus casillas marcadas.
 - [x] Validar la corrección con TypeScript, diagnósticos del editor y build de producción.
+
+## Importación Excel
+
+- [x] Agregada la dependencia `xlsx` para leer workbooks en el navegador.
+- [x] Creado `src/lib/excel-import.ts` como adaptador aislado Excel -> modelo interno.
+- [x] El importador acepta encabezados normalizados en español o inglés y asigna `Venta` por defecto cuando falta el tipo de evaluación.
+- [x] Agregado el control `Importar Excel` en la barra existente, sin cambiar la estructura visual de los módulos.
+- [x] La carga reemplaza el dataset en memoria, actualiza filtros y recalcula el Resumen Ejecutivo.
+- [x] Generado `src/data/mystery-shopping-imported.json` con el mismo formato lógico del dataset actual.
+- [x] Procesado `base-mystery-3.xlsx`: 42 evaluaciones, 434 filas de indicadores, 2060 preguntas y 12 indicadores únicos.
+- [x] Agregada la acción para restaurar el dataset original y quitar los datos importados de la sesión.
+- [x] Validaciones ejecutadas: `npx tsc --noEmit`, `npx prettier --check`, `npm run data:excel` y `npm run build`.
+- [ ] Revisar visualmente los datos importados en cada ruta y definir el proveedor de base de datos.
+
+Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproducible de desarrollo y encapsular después la lectura de JSON, Excel y API detrás de un único proveedor de datos. Así la UI no dependerá del formato de origen y será posible auditar cada importación.
