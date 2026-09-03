@@ -40,20 +40,31 @@ function Dashboard() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const evs = useMemo(() => filterEvaluaciones(filters), [filters]);
-  const scoreOf = useMemo(() => (e: Parameters<typeof scoreForEval>[0]) => scoreForEval(e, filters.indicador), [filters.indicador]);
+  const scoreOf = useMemo(
+    () => (e: Parameters<typeof scoreForEval>[0]) => {
+      if (!filters.indicador?.length) return e.puntaje;
+      const scores = filters.indicador.map((indicator) => scoreForEval(e, indicator));
+      return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    },
+    [filters.indicador],
+  );
 
   const indicadorRows = useMemo(() => {
     const rows = indicadorAverages(evs);
-    return filters.indicador === "all" ? rows : rows.filter((r) => String(r.n) === filters.indicador);
+    return filters.indicador?.length
+      ? rows.filter((r) => filters.indicador?.includes(String(r.n)))
+      : rows;
   }, [evs, filters.indicador]);
 
   const preguntas = useMemo(() => {
     const list = preguntasAgregadas(evs);
-    return filters.indicador === "all" ? list : list.filter((p) => String(p.ind) === filters.indicador);
+    return filters.indicador?.length
+      ? list.filter((p) => filters.indicador?.includes(String(p.ind)))
+      : list;
   }, [evs, filters.indicador]);
 
   const selected = evs.find((e) => e.id === selectedId) ?? null;
-  const activeCount = Object.values(filters).filter((v) => v !== "all").length;
+  const activeCount = Object.values(filters).filter((v) => v !== null && v.length > 0).length;
 
   const handleChange = (patch: Partial<Filters>) => {
     setFilters((prev) => ({ ...prev, ...patch }));
@@ -72,7 +83,7 @@ function Dashboard() {
         activeCount={activeCount}
       />
 
-      <main className="mx-auto max-w-[1400px] space-y-4 px-4 py-6 lg:px-8">
+      <main className="mx-auto max-w-350 space-y-4 px-4 py-6 lg:px-8">
         <h1 className="sr-only">Panel ejecutivo de Mystery Shopping Maquinarias</h1>
 
         <KpiRow evs={evs} scoreOf={scoreOf} indicadores={indicadorRows} />

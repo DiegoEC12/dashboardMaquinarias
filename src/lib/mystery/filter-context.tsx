@@ -1,18 +1,11 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { EMPTY_FILTERS, type GlobalFilters } from "./calculations";
 import { dataset } from "./dataset";
 
 interface FilterContextValue {
   filters: GlobalFilters;
-  setFilter: (key: keyof GlobalFilters, value: string | null) => void;
+  setFilter: (key: keyof GlobalFilters, value: string[] | null) => void;
   clearFilters: () => void;
   hasFilters: boolean;
   activeLabel: string;
@@ -21,6 +14,7 @@ interface FilterContextValue {
     concesionarias: string[];
     marcas: string[];
     ubicaciones: string[];
+    tiposEvaluacion: string[];
   };
   selectedIndicadorId: string | null;
   openIndicador: (id: string) => void;
@@ -41,7 +35,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const [selectedPreguntaId, setSelectedPreguntaId] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const setFilter = useCallback((key: keyof GlobalFilters, value: string | null) => {
+  const setFilter = useCallback((key: keyof GlobalFilters, value: string[] | null) => {
     setFilters((prev) => {
       const next = { ...prev, [key]: value };
       if (key === "concesionaria") {
@@ -56,36 +50,41 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const clearFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
   const options = useMemo(() => {
-    const by = (fn: (e: (typeof dataset.evaluations)[number]) => boolean, key: "periodo" | "concesionaria" | "marca" | "ubicacion") =>
+    const by = (
+      fn: (e: (typeof dataset.evaluations)[number]) => boolean,
+      key: "periodo" | "concesionaria" | "marca" | "ubicacion",
+    ) =>
       [...new Set(dataset.evaluations.filter(fn).map((e) => e[key]))].sort((a, b) =>
         a.localeCompare(b, "es"),
       );
     return {
       periodos: by(() => true, "periodo"),
       concesionarias: by(
-        (e) => !filters.periodo || e.periodo === filters.periodo,
+        (e) => !filters.periodo || filters.periodo.includes(e.periodo),
         "concesionaria",
       ),
       marcas: by(
         (e) =>
-          (!filters.periodo || e.periodo === filters.periodo) &&
-          (!filters.concesionaria || e.concesionaria === filters.concesionaria),
+          (!filters.periodo || filters.periodo.includes(e.periodo)) &&
+          (!filters.concesionaria || filters.concesionaria.includes(e.concesionaria)),
         "marca",
       ),
       ubicaciones: by(
         (e) =>
-          (!filters.periodo || e.periodo === filters.periodo) &&
-          (!filters.concesionaria || e.concesionaria === filters.concesionaria) &&
-          (!filters.marca || e.marca === filters.marca),
+          (!filters.periodo || filters.periodo.includes(e.periodo)) &&
+          (!filters.concesionaria || filters.concesionaria.includes(e.concesionaria)) &&
+          (!filters.marca || filters.marca.includes(e.marca)),
         "ubicacion",
       ),
+      tiposEvaluacion: ["Venta", "Callcenter", "Seminuevos", "Posventa"],
     };
   }, [filters.periodo, filters.concesionaria, filters.marca]);
 
-  const hasFilters = Object.values(filters).some(Boolean);
+  const hasFilters = Object.values(filters).some((values) => values !== null && values.length > 0);
   const activeLabel = hasFilters
-    ? [filters.periodo, filters.concesionaria, filters.marca, filters.ubicacion]
-        .filter(Boolean)
+    ? Object.values(filters)
+        .filter((values) => values !== null && values.length > 0)
+        .map((values) => values.join(", "))
         .join(" · ")
     : "Todas las evaluaciones";
 

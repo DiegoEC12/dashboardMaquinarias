@@ -30,10 +30,12 @@ export function statusFor(v: number | null | undefined): Status {
 }
 
 export interface GlobalFilters {
-  periodo: string | null;
-  concesionaria: string | null;
-  marca: string | null;
-  ubicacion: string | null;
+  periodo: string[] | null;
+  concesionaria: string[] | null;
+  marca: string[] | null;
+  ubicacion: string[] | null;
+  tipoEvaluacion: string[] | null;
+  indicador: string[] | null;
 }
 
 export const EMPTY_FILTERS: GlobalFilters = {
@@ -41,18 +43,29 @@ export const EMPTY_FILTERS: GlobalFilters = {
   concesionaria: null,
   marca: null,
   ubicacion: null,
+  tipoEvaluacion: null,
+  indicador: null,
 };
 
-export function filterEvaluations(
-  evals: Evaluation[],
-  f: GlobalFilters,
-): Evaluation[] {
+export function filterEvaluations(evals: Evaluation[], f: GlobalFilters): Evaluation[] {
+  const selectedIndicators = f.indicador;
   return evals.filter(
     (e) =>
-      (!f.periodo || e.periodo === f.periodo) &&
-      (!f.concesionaria || e.concesionaria === f.concesionaria) &&
-      (!f.marca || e.marca === f.marca) &&
-      (!f.ubicacion || e.ubicacion === f.ubicacion),
+      (!f.periodo || f.periodo.includes(e.periodo)) &&
+      (!f.concesionaria || f.concesionaria.includes(e.concesionaria)) &&
+      (!f.marca || f.marca.includes(e.marca)) &&
+      (!f.ubicacion || f.ubicacion.includes(e.ubicacion)) &&
+      (!f.tipoEvaluacion || f.tipoEvaluacion.includes(e.tipoEvaluacion)) &&
+      (!selectedIndicators ||
+        dataset.indicatorResults.some(
+          (result) =>
+            result.idEvaluacion === e.id &&
+            selectedIndicators.some(
+              (indicator) =>
+                indicator === result.idIndicador ||
+                `IND_${String(Number(indicator)).padStart(2, "0")}` === result.idIndicador,
+            ),
+        )),
   );
 }
 
@@ -69,8 +82,11 @@ export function getScopes(f: GlobalFilters): Scopes {
   const base = filterEvaluations(dataset.evaluations, {
     ...EMPTY_FILTERS,
     periodo: f.periodo,
+    concesionaria: null,
     marca: f.marca,
     ubicacion: f.ubicacion,
+    tipoEvaluacion: f.tipoEvaluacion,
+    indicador: f.indicador,
   });
   const maqAll = base.filter((e) => e.tipoEmpresa === "MAQUINARIAS");
   const compAll = base.filter((e) => e.tipoEmpresa === "COMPETENCIA");
@@ -79,23 +95,29 @@ export function getScopes(f: GlobalFilters): Scopes {
   let comp = compAll;
   let maqLabel = "Maquinarias (todas)";
   let compLabel = "Competencia (todas)";
-  if (f.concesionaria && isMaquinarias(f.concesionaria)) {
-    maq = maqAll.filter((e) => e.concesionaria === f.concesionaria);
-    maqLabel = f.concesionaria;
-  } else if (f.concesionaria) {
-    comp = compAll.filter((e) => e.concesionaria === f.concesionaria);
-    compLabel = f.concesionaria;
+  const selectedConcesionarias = f.concesionaria;
+  const selectedConcesionaria = selectedConcesionarias?.[0];
+  if (
+    selectedConcesionarias?.length === 1 &&
+    selectedConcesionaria &&
+    isMaquinarias(selectedConcesionaria)
+  ) {
+    maq = maqAll.filter((e) => selectedConcesionarias.includes(e.concesionaria));
+    maqLabel = selectedConcesionaria;
+  } else if (selectedConcesionarias?.length === 1) {
+    comp = compAll.filter((e) => selectedConcesionarias.includes(e.concesionaria));
+    compLabel = selectedConcesionaria ?? "";
   }
 
-  const selection = f.concesionaria
-    ? base.filter((e) => e.concesionaria === f.concesionaria)
+  const selection = selectedConcesionarias?.length
+    ? base.filter((e) => selectedConcesionarias.includes(e.concesionaria))
     : base;
 
   return {
     selection,
     maquinarias: maq,
     competencia: comp,
-    selectionLabel: f.concesionaria ?? "Todas las evaluaciones",
+    selectionLabel: f.concesionaria?.length ? f.concesionaria.join(", ") : "Todas las evaluaciones",
     maquinariasLabel: maqLabel,
     competenciaLabel: compLabel,
   };
@@ -106,9 +128,7 @@ function ids(evals: Evaluation[]): string[] {
 }
 
 export function calculateWeightedScore(evalIds: string[]): number | null {
-  return weightedFromRows(
-    dataset.indicatorResults.filter((r) => evalIds.includes(r.idEvaluacion)),
-  );
+  return weightedFromRows(dataset.indicatorResults.filter((r) => evalIds.includes(r.idEvaluacion)));
 }
 
 function weightedFromRows(rows: IndicatorResult[]): number | null {
@@ -122,10 +142,7 @@ function weightedFromRows(rows: IndicatorResult[]): number | null {
   return w > 0 ? sum / w : null;
 }
 
-export function indicatorScore(
-  evalIds: string[],
-  indicatorId: string,
-): number | null {
+export function indicatorScore(evalIds: string[], indicatorId: string): number | null {
   return weightedFromRows(
     dataset.indicatorResults.filter(
       (r) => r.idIndicador === indicatorId && evalIds.includes(r.idEvaluacion),
@@ -199,20 +216,14 @@ export function calculateIndicatorPerformance(scopes: Scopes): IndicatorPerforma
   });
 }
 
-export function calculatePriorityImpact(
-  resultado: number | null,
-  peso: number,
-): number | null {
+export function calculatePriorityImpact(resultado: number | null, peso: number): number | null {
   if (resultado === null) return null;
   return (1 - resultado) * peso;
 }
 
 export type PriorityLevel = "ALTA" | "MEDIA" | "BAJA";
 
-export function priorityLevel(
-  impacto: number | null,
-  brecha: number | null,
-): PriorityLevel {
+export function priorityLevel(impacto: number | null, brecha: number | null): PriorityLevel {
   const imp = impacto ?? 0;
   const gapPenalty = brecha !== null && brecha < 0 ? Math.abs(brecha) * 0.5 : 0;
   const score = imp + gapPenalty;
@@ -241,10 +252,7 @@ export function getCriticalQuestions(
     .filter((q) => q.idIndicador === indicatorId)
     .map((q) => {
       const rows = dataset.questionResponses.filter(
-        (r) =>
-          r.idPregunta === q.id &&
-          evalIds.includes(r.idEvaluacion) &&
-          r.puntaje !== null,
+        (r) => r.idPregunta === q.id && evalIds.includes(r.idEvaluacion) && r.puntaje !== null,
       );
       const cumplimiento = rows.length
         ? rows.reduce((s, r) => s + (r.puntaje ?? 0), 0) / rows.length
@@ -256,10 +264,7 @@ export function getCriticalQuestions(
         cumplimiento,
         nEvaluaciones: rows.length,
         pesoIndicador,
-        impacto:
-          cumplimiento === null
-            ? null
-            : (1 - cumplimiento) * pesoIndicador,
+        impacto: cumplimiento === null ? null : (1 - cumplimiento) * pesoIndicador,
       };
     });
 }
@@ -267,7 +272,12 @@ export function getCriticalQuestions(
 export function getFailingEvaluations(
   questionId: string,
   evalIds: string[],
-): { evaluation: Evaluation; puntaje: number; comentario: string | null; respuesta: string | null }[] {
+): {
+  evaluation: Evaluation;
+  puntaje: number;
+  comentario: string | null;
+  respuesta: string | null;
+}[] {
   return dataset.questionResponses
     .filter(
       (r) =>
@@ -323,12 +333,9 @@ export function groupScores(
 }
 
 export function benchmarkSentence(b: BenchmarkResult): string {
-  if (b.brecha === null)
-    return "No hay datos suficientes para comparar contra la referencia.";
+  if (b.brecha === null) return "No hay datos suficientes para comparar contra la referencia.";
   const pp = Math.abs(b.brecha * 100).toFixed(1);
-  if (b.brecha > 0)
-    return `Maquinarias se encuentra ${pp} pp sobre la competencia.`;
-  if (b.brecha < 0)
-    return `Maquinarias se encuentra ${pp} pp por debajo de la competencia.`;
+  if (b.brecha > 0) return `Maquinarias se encuentra ${pp} pp sobre la competencia.`;
+  if (b.brecha < 0) return `Maquinarias se encuentra ${pp} pp por debajo de la competencia.`;
   return "Maquinarias está empatada con la competencia.";
 }

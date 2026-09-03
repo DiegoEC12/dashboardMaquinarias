@@ -18,6 +18,7 @@ export interface Evaluation {
   concesionaria: string;
   marca: string;
   ubicacion: string;
+  tipoEvaluacion: string;
   tipoEmpresa: string; // 'MAQUINARIAS' | 'COMPETENCIA'
 }
 

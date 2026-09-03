@@ -11,26 +11,39 @@ function normalize(rawData: any): Dataset {
   const meta = rawData.meta ?? {};
 
   // Normalizar evaluaciones (from `evaluaciones` Spanish key)
-  const evaluations: Evaluation[] = (rawData.evaluaciones || rawData.evaluations || []).map((e: any) => ({
-    id: e.id,
-    periodo: e.periodo ?? meta.periodo ?? null,
-    concesionaria: e.concesionaria ?? "",
-    marca: e.marca ?? "",
-    ubicacion: e.ubicacion ?? "",
-    // Derivar tipoEmpresa: si la concesionaria literal es 'MAQUINARIAS', se considera Maquinarias
-    tipoEmpresa: (e.concesionaria && String(e.concesionaria).toUpperCase() === "MAQUINARIAS") ? "MAQUINARIAS" : "COMPETENCIA",
-  }));
+  const evaluations: Evaluation[] = (rawData.evaluaciones || rawData.evaluations || []).map(
+    (e: any) => ({
+      id: e.id,
+      periodo: e.periodo ?? meta.periodo ?? null,
+      concesionaria: e.concesionaria ?? "",
+      marca: e.marca ?? "",
+      ubicacion: e.ubicacion ?? "",
+      tipoEvaluacion: e.tipoEvaluacion ?? "Venta",
+      // Derivar tipoEmpresa: si la concesionaria literal es 'MAQUINARIAS', se considera Maquinarias
+      tipoEmpresa:
+        e.concesionaria && String(e.concesionaria).toUpperCase() === "MAQUINARIAS"
+          ? "MAQUINARIAS"
+          : "COMPETENCIA",
+    }),
+  );
 
   // Construir indicadores únicos y resultados desde `indicadores` (spanish)
   const rawInds: any[] = rawData.indicadores || rawData.indicators || [];
   const indicatorsMap = new Map<string, Indicator>();
-  const indicatorResults: { idEvaluacion: string; idIndicador: string; resultado: number | null; peso: number }[] = [];
+  const indicatorResults: {
+    idEvaluacion: string;
+    idIndicador: string;
+    resultado: number | null;
+    peso: number;
+  }[] = [];
 
   for (const ri of rawInds) {
     // Algunos registros vienen por-evaluación: tienen `ev` (evaluation id) y `n` (número)
     const evId = ri.ev ?? ri.idEvaluacion ?? null;
     const n = ri.n ?? ri.orden ?? null;
-    const idIndicador = n ? `IND_${String(n).padStart(2, "0")}` : (ri.id || ri.idIndicador || `IND_${Math.random().toString(36).slice(2, 7)}`);
+    const idIndicador = n
+      ? `IND_${String(n).padStart(2, "0")}`
+      : ri.id || ri.idIndicador || `IND_${Math.random().toString(36).slice(2, 7)}`;
 
     // Asegurar que el indicador esté en el mapa
     if (!indicatorsMap.has(idIndicador)) {

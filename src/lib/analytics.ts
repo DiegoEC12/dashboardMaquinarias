@@ -8,6 +8,7 @@ export type Evaluacion = {
   puntaje: number;
   resumen: string | null;
   recomendaciones: string | null;
+  tipoEvaluacion: string;
 };
 
 export type IndicadorRow = {
@@ -29,12 +30,15 @@ export type PreguntaRow = {
 };
 
 const data = raw as unknown as {
-  evaluaciones: Evaluacion[];
+  evaluaciones: (Omit<Evaluacion, "tipoEvaluacion"> & { tipoEvaluacion?: string })[];
   indicadores: IndicadorRow[];
   preguntas: PreguntaRow[];
 };
 
-export const evaluaciones = data.evaluaciones;
+export const evaluaciones: Evaluacion[] = data.evaluaciones.map((e) => ({
+  ...e,
+  tipoEvaluacion: e.tipoEvaluacion ?? "Venta",
+}));
 export const indicadores = data.indicadores;
 export const preguntas = data.preguntas;
 
@@ -61,31 +65,34 @@ export function title(value: string) {
 }
 
 export type Filters = {
-  concesionaria: string;
-  marca: string;
-  ubicacion: string;
-  indicador: string;
+  concesionaria: string[] | null;
+  marca: string[] | null;
+  ubicacion: string[] | null;
+  indicador: string[] | null;
+  tipoEvaluacion: string[] | null;
 };
 
 export const EMPTY_FILTERS: Filters = {
-  concesionaria: "all",
-  marca: "all",
-  ubicacion: "all",
-  indicador: "all",
+  concesionaria: null,
+  marca: null,
+  ubicacion: null,
+  indicador: null,
+  tipoEvaluacion: null,
 };
 
 export function filterEvaluaciones(f: Filters) {
   return evaluaciones.filter(
     (e) =>
-      (f.concesionaria === "all" || e.concesionaria === f.concesionaria) &&
-      (f.marca === "all" || e.marca === f.marca) &&
-      (f.ubicacion === "all" || e.ubicacion === f.ubicacion),
+      (!f.concesionaria || f.concesionaria.includes(e.concesionaria)) &&
+      (!f.marca || f.marca.includes(e.marca)) &&
+      (!f.ubicacion || f.ubicacion.includes(e.ubicacion)) &&
+      (!f.tipoEvaluacion || f.tipoEvaluacion.includes(e.tipoEvaluacion)),
   );
 }
 
 /** Score of one evaluation, respecting an optional indicator focus. */
 export function scoreOf(ev: Evaluacion, indicadorFiltro: string) {
-  if (indicadorFiltro === "all") return ev.puntaje;
+  if (!indicadorFiltro || indicadorFiltro === "all") return ev.puntaje;
   const row = indicadores.find((i) => i.ev === ev.id && String(i.n) === indicadorFiltro);
   return row ? row.cumpl : 0;
 }
@@ -144,8 +151,12 @@ export function brechaPorIndicador(evs: Evaluacion[]) {
   const otras = new Set(evs.filter((e) => e.concesionaria !== MARCA_PROPIA).map((e) => e.id));
   return indicadorCatalogo
     .map((c) => {
-      const own = avg(indicadores.filter((i) => propias.has(i.ev) && i.n === c.n).map((i) => i.cumpl));
-      const rival = avg(indicadores.filter((i) => otras.has(i.ev) && i.n === c.n).map((i) => i.cumpl));
+      const own = avg(
+        indicadores.filter((i) => propias.has(i.ev) && i.n === c.n).map((i) => i.cumpl),
+      );
+      const rival = avg(
+        indicadores.filter((i) => otras.has(i.ev) && i.n === c.n).map((i) => i.cumpl),
+      );
       return { ...c, own, rival, gap: own - rival };
     })
     .sort((a, b) => a.own - b.own);
@@ -156,7 +167,13 @@ export type PreguntaAgg = {
   indicador: string;
   ind: number;
   valor: number;
-  respuestas: { ev: string; local: string; resp: string | null; nota: number | null; obs: string | null }[];
+  respuestas: {
+    ev: string;
+    local: string;
+    resp: string | null;
+    nota: number | null;
+    obs: string | null;
+  }[];
 };
 
 export function preguntasAgregadas(evs: Evaluacion[]): PreguntaAgg[] {
