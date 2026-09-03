@@ -3,8 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, ChevronRight, X } from "lucide-react";
 import { PageHeader } from "@/components/mystery/page-header";
 import { EmptyState, GapChip, SectionHeader, StatusBadge } from "@/components/mystery/primitives";
-import { MiniBars, RankingBars } from "@/components/mystery/charts";
-import { Heatmap } from "@/components/dash/Heatmap";
+import { Heatmap, MiniBars, RankingBars } from "@/components/mystery/charts";
 import {
   calculateBenchmark,
   calculateWeightedScore,
@@ -44,7 +43,7 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
 ];
 
 function ConcesionariasPage() {
-  const { filters, openIndicador, openEvaluacion } = useFilters();
+  const { filters, openIndicador, openEvaluacion, dataVersion } = useFilters();
   const [sort, setSort] = useState<SortMode>("mayor");
   const [drill, setDrill] = useState<{
     concesionaria?: string;
@@ -53,7 +52,7 @@ function ConcesionariasPage() {
   }>({});
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
-  const scopes = useMemo(() => getScopes(filters), [filters]);
+  const scopes = useMemo(() => getScopes(filters), [filters, dataVersion]);
   const benchmark = useMemo(() => calculateBenchmark(scopes), [scopes]);
   const reference = benchmark.competencia;
 
@@ -116,6 +115,11 @@ function ConcesionariasPage() {
     return rows.sort((a, b) => val(b) - val(a));
   }, [drilled, level, reference, sort]);
 
+  const visibleRanking = useMemo(
+    () => (level === "local" ? ranking.slice(0, 5) : ranking),
+    [ranking, level],
+  );
+
   const heatRows = useMemo(() => {
     const map = new Map<string, { key: string; label: string; sub: string; ids: string[] }>();
     for (const e of drilled) {
@@ -136,9 +140,51 @@ function ConcesionariasPage() {
     });
   }, [drilled]);
 
-  const heatIdsByRow = useMemo(() => new Map(heatRows.map((r) => [r.key, r.ids])), [heatRows]);
+  const heatColumns = useMemo(
+    () =>
+      [...dataset.indicators]
+        .sort((a, b) => a.orden - b.orden)
+        .map((indicator) => ({ id: indicator.id, label: indicator.nombre })),
+    [dataVersion],
+  );
 
   const compIds = scopes.competencia.map((e) => e.id);
+
+  const heatBenchmarkByIndicator = useMemo(
+    () =>
+      new Map(
+        heatColumns.map((column) => [column.id, indicatorScore(compIds, column.id)]),
+      ),
+    [compIds, heatColumns],
+  );
+
+  const heatMatrix = useMemo(() => {
+    const matrix = new Map<string, Map<string, { value: number | null; n: number }>>();
+    for (const row of heatRows) {
+      const idSet = new Set(row.ids);
+      const byIndicator = new Map<string, { sum: number; weight: number; n: number }>();
+
+      for (const result of dataset.indicatorResults) {
+        if (!idSet.has(result.idEvaluacion) || result.resultado === null) continue;
+        const current = byIndicator.get(result.idIndicador) ?? { sum: 0, weight: 0, n: 0 };
+        current.sum += result.resultado * result.peso;
+        current.weight += result.peso;
+        current.n += 1;
+        byIndicator.set(result.idIndicador, current);
+      }
+
+      const rowCells = new Map<string, { value: number | null; n: number }>();
+      for (const column of heatColumns) {
+        const aggregate = byIndicator.get(column.id);
+        rowCells.set(column.id, {
+          value: aggregate && aggregate.weight > 0 ? aggregate.sum / aggregate.weight : null,
+          n: aggregate?.n ?? 0,
+        });
+      }
+      matrix.set(row.key, rowCells);
+    }
+    return matrix;
+  }, [heatRows, heatColumns]);
 
   const selected = useMemo(
     () => ranking.find((r) => r.key === selectedKey) ?? null,
@@ -161,24 +207,6 @@ function ConcesionariasPage() {
       n: ids.length,
     }));
   }, [selectedEvals]);
-
-  const heatmapEvs = useMemo(
-    () =>
-      heatRows.map((row) => {
-        const evaluation = drilled.find((e) => row.ids.includes(e.id));
-        return {
-          id: row.key,
-          concesionaria: row.label,
-          marca: evaluation?.marca ?? "",
-          ubicacion: evaluation?.ubicacion ?? "",
-          puntaje: calculateWeightedScore(row.ids) ?? 0,
-          resumen: null,
-          recomendaciones: null,
-          tipoEvaluacion: evaluation?.tipoEvaluacion ?? "Venta",
-        };
-      }),
-    [drilled, heatRows],
-  );
 
   function handleRankingSelect(key: string) {
     setSelectedKey(key === selectedKey ? null : key);
@@ -285,7 +313,7 @@ function ConcesionariasPage() {
                 }
               />
               <RankingBars
-                rows={ranking}
+                rows={visibleRanking}
                 reference={reference}
                 selectedKey={selectedKey}
                 onSelect={handleRankingSelect}
@@ -375,22 +403,32 @@ function ConcesionariasPage() {
             </section>
           </div>
 
-          {/* Reemplazo: usar el mapa de Resumen Ejecutivo en lugar del heatmap original */}
-          <section className="rounded-xl border border-border bg-card p-5">
+          <section className="rounded-xl border border-border bg-card p-4">
             <SectionHeader
               title="Mapa por locales"
-              description="Explora los locales del universo seleccionado. Click en un local para seleccionarlo en el panel."
+              description="Explora el resultado por indicador en cada local del universo seleccionado."
             />
             {drilled.length === 0 ? (
               <EmptyState />
             ) : (
               <Heatmap
-                evs={heatmapEvs}
-                selected={level === "local" ? (selected ? selected.key : null) : null}
-                onSelect={(id: string) => {
-                  const row = heatRows.find((item) => item.key === id);
+                rows={heatRows.map((row) => ({ key: row.key, label: row.label, sub: row.sub }))}
+                columns={heatColumns}
+                cell={(rowKey, colId) => heatMatrix.get(rowKey)?.get(colId) ?? { value: null, n: 0 }}
+                benchmark={(colId) => heatBenchmarkByIndicator.get(colId) ?? null}
+                selectedRow={level === "local" ? selectedKey : null}
+                showNumericHeaders
+                compact
+                showHoverFooter
+                onRowSelect={(rowKey) => {
+                  const row = heatRows.find((item) => item.key === rowKey);
+                  if (level === "local") {
+                    setSelectedKey(rowKey);
+                    return;
+                  }
                   if (row?.ids[0]) openEvaluacion(row.ids[0]);
                 }}
+                onColSelect={(id) => openIndicador(id)}
               />
             )}
           </section>

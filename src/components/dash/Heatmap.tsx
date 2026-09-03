@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SectionCard } from "@/components/dash/primitives";
 import { cn } from "@/lib/utils";
 import {
+  avg,
   indicadorCatalogo,
   indicadores as allIndicadores,
   labelOf,
@@ -16,11 +17,13 @@ type Cell = { ev: Evaluacion; n: number; nombre: string; valor: number };
 
 export function Heatmap({
   evs,
+  evalIdsByRow,
   onSelect,
   selected,
   delay = 0,
 }: {
   evs: Evaluacion[];
+  evalIdsByRow?: Map<string, string[]>;
   onSelect: (id: string) => void;
   selected: string | null;
   delay?: number;
@@ -65,6 +68,7 @@ export function Heatmap({
                 <FragmentRow
                   key={ev.id}
                   ev={ev}
+                  evalIds={evalIdsByRow?.get(ev.id) ?? [ev.id]}
                   rowIndex={r}
                   selected={selected === ev.id}
                   onSelect={onSelect}
@@ -104,18 +108,21 @@ export function Heatmap({
 
 function FragmentRow({
   ev,
+  evalIds,
   rowIndex,
   selected,
   onSelect,
   onHover,
 }: {
   ev: Evaluacion;
+  evalIds: string[];
   rowIndex: number;
   selected: boolean;
   onSelect: (id: string) => void;
   onHover: (cell: Cell | null) => void;
 }) {
-  const rows = allIndicadores.filter((i) => i.ev === ev.id);
+  const evaluationSet = new Set(evalIds);
+  const rows = allIndicadores.filter((indicator) => evaluationSet.has(indicator.ev));
   return (
     <>
       <button
@@ -129,8 +136,8 @@ function FragmentRow({
         {labelOf(ev)}
       </button>
       {indicadorCatalogo.map((c, i) => {
-        const row = rows.find((r) => r.n === c.n);
-        const valor = row?.cumpl ?? 0;
+        const values = rows.filter((indicator) => indicator.n === c.n).map((indicator) => indicator.cumpl);
+        const valor = values.length ? avg(values) : 0;
         return (
           <button
             key={c.n}

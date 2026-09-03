@@ -4,13 +4,12 @@ import { FilterBar } from "@/components/dash/FilterBar";
 import { KpiRow } from "@/components/dash/KpiRow";
 import { BenchmarkPanel, RankingPanel } from "@/components/dash/BenchmarkRanking";
 import { Heatmap } from "@/components/dash/Heatmap";
-import { CriticalQuestions } from "@/components/dash/CriticalQuestions";
 import { EvaluatorPanel, StrengthsOpportunities } from "@/components/dash/EvaluatorPanel";
 import {
   EMPTY_FILTERS,
   filterEvaluaciones,
   indicadorAverages,
-  preguntasAgregadas,
+  localKey,
   scoreOf as scoreForEval,
   type Filters,
 } from "@/lib/analytics";
@@ -29,7 +28,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Explora KPIs, benchmark, ranking de locales, mapa de calor y preguntas críticas de las evaluaciones de Mystery Shopping.",
+          "Explora KPIs, benchmark, ranking de locales, mapa de calor y detalle del evaluador en las evaluaciones de Mystery Shopping.",
       },
     ],
   }),
@@ -58,12 +57,71 @@ function Dashboard() {
       : rows;
   }, [evs, filters.indicador]);
 
-  const preguntas = useMemo(() => {
-    const list = preguntasAgregadas(evs);
-    return filters.indicador?.length
-      ? list.filter((p) => filters.indicador?.includes(String(p.ind)))
-      : list;
-  }, [evs, filters.indicador]);
+  const heatmapLocals = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        representative: (typeof evs)[number];
+        representativeId: string;
+        bestScore: number;
+        scores: number[];
+        evIds: string[];
+      }
+    >();
+
+    for (const evaluation of evs) {
+      const key = localKey(evaluation.concesionaria, evaluation.marca, evaluation.ubicacion);
+      const score = scoreOf(evaluation);
+      const current = map.get(key);
+      if (!current) {
+        map.set(key, {
+          representative: evaluation,
+          representativeId: evaluation.id,
+          bestScore: score,
+          scores: [score],
+          evIds: [evaluation.id],
+        });
+        continue;
+      }
+      current.scores.push(score);
+      if (!current.evIds.includes(evaluation.id)) current.evIds.push(evaluation.id);
+      if (score > current.bestScore) {
+        current.bestScore = score;
+        current.representative = evaluation;
+        current.representativeId = evaluation.id;
+      }
+    }
+
+    return Array.from(map.entries())
+      .map(([key, entry]) => ({ key, ...entry }))
+      .sort((a, b) => b.bestScore - a.bestScore);
+  }, [evs, scoreOf]);
+
+  const heatmapRows = useMemo(
+    () =>
+      heatmapLocals.map((local) => ({
+        ...local.representative,
+        id: local.key,
+      })),
+    [heatmapLocals],
+  );
+
+  const evalIdsByHeatmapRow = useMemo(
+    () => new Map(heatmapLocals.map((local) => [local.key, local.evIds])),
+    [heatmapLocals],
+  );
+
+  const representativeByHeatmapRow = useMemo(
+    () => new Map(heatmapLocals.map((local) => [local.key, local.representativeId])),
+    [heatmapLocals],
+  );
+
+  const selectedHeatmapRowId = useMemo(() => {
+    if (!selectedId) return null;
+    const evaluation = evs.find((item) => item.id === selectedId);
+    if (!evaluation) return null;
+    return localKey(evaluation.concesionaria, evaluation.marca, evaluation.ubicacion);
+  }, [selectedId, evs]);
 
   const selected = evs.find((e) => e.id === selectedId) ?? null;
   const activeCount = Object.values(filters).filter((v) => v !== null && v.length > 0).length;
@@ -103,13 +161,16 @@ function Dashboard() {
               />
             </div>
             <Heatmap
-              evs={evs}
-              selected={selectedId}
-              onSelect={(id) => setSelectedId(id === selectedId ? null : id)}
+              evs={heatmapRows}
+              evalIdsByRow={evalIdsByHeatmapRow}
+              selected={selectedHeatmapRowId}
+              onSelect={(rowId) => {
+                const representativeId = representativeByHeatmapRow.get(rowId) ?? rowId;
+                setSelectedId(representativeId === selectedId ? null : representativeId);
+              }}
               delay={180}
             />
             <StrengthsOpportunities rows={indicadorAverages(evs)} delay={240} />
-            <CriticalQuestions items={preguntas} delay={300} />
           </div>
 
           <div className="lg:col-span-1">

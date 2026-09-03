@@ -56,9 +56,18 @@ export const indicadorCatalogo = Array.from(
 
 export const labelOf = (e: Evaluacion) => `${title(e.concesionaria)} ${title(e.marca)}`;
 
+function normalizeKeyPart(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLocaleUpperCase("es");
+}
+
 export function localKey(concesionaria: string, marca: string, ubicacion: string) {
   return [concesionaria, marca, ubicacion]
-    .map((value) => value.trim().toLocaleUpperCase("es"))
+    .map(normalizeKeyPart)
     .join("|");
 }
 

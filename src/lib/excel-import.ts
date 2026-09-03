@@ -84,7 +84,16 @@ export async function importExcelFile(file: File): Promise<{
     puntaje: number(findValue(row, ["puntaje", "puntajetotal", "score", "resultado"])),
     resumen: text(findValue(row, ["resumen", "resumenvisita", "summary"]), "") || null,
     recomendaciones: text(findValue(row, ["recomendaciones", "recommendations"]), "") || null,
-    tipoEvaluacion: text(findValue(row, ["tipoevaluacion", "tipo", "evaluationtype"]), "Venta"),
+    tipoEvaluacion: text(
+      findValue(row, [
+        "tipoevaluacion",
+        "origencanal",
+        "canalorigen",
+        "tipo",
+        "evaluationtype",
+      ]),
+      "Venta",
+    ),
   }));
 
   const indicators: IndicadorRow[] = indicatorRows

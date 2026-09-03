@@ -6,6 +6,7 @@ import { MultiFilterSelect } from "./MultiFilterSelect";
 import { useFilters } from "@/lib/mystery/filter-context";
 import {
   concesionarias,
+  evaluaciones,
   indicadorCatalogo,
   marcas,
   title,
@@ -39,6 +40,10 @@ function FilterSelect({
 export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { importExcel, importError, resetImportedData } = useFilters();
+
+  const tipoEvaluacionOptions = [...new Set(evaluaciones.map((evaluation) => evaluation.tipoEvaluacion).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "es"))
+    .map((type) => ({ value: type, label: type }));
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur-md">
@@ -130,12 +135,7 @@ export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
           <MultiFilterSelect
             label="Tipo de evaluación"
             values={filters.tipoEvaluacion}
-            options={[
-              { value: "Venta", label: "Venta" },
-              { value: "Callcenter", label: "Callcenter" },
-              { value: "Seminuevos", label: "Seminuevos" },
-              { value: "Posventa", label: "Posventa" },
-            ]}
+            options={tipoEvaluacionOptions}
             onChange={(values) => onChange({ tipoEvaluacion: values })}
           />
         </div>

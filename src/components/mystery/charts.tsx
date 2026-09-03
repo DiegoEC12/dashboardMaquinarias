@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { cn } from "@/lib/utils";
 import { fmtPct, fmtPp } from "@/lib/mystery/format";
@@ -274,6 +274,9 @@ export function Heatmap({
   onRowSelect,
   onColSelect,
   selectedRow,
+  showNumericHeaders = false,
+  compact = false,
+  showHoverFooter = false,
 }: {
   rows: { key: string; label: string; sub?: string }[];
   columns: { id: string; label: string }[];
@@ -282,23 +285,46 @@ export function Heatmap({
   onRowSelect?: (key: string) => void;
   onColSelect?: (id: string) => void;
   selectedRow?: string | null;
+  showNumericHeaders?: boolean;
+  compact?: boolean;
+  showHoverFooter?: boolean;
 }) {
+  const [hovered, setHovered] = useState<{
+    rowLabel: string;
+    rowSub?: string;
+    columnLabel: string;
+    value: number | null;
+  } | null>(null);
+
   return (
-    <div className="overflow-x-auto scrollbar-thin">
-      <table className="w-full border-separate border-spacing-1">
+    <div>
+      <div className="overflow-x-auto scrollbar-thin">
+        <table className={cn("w-full border-separate", compact ? "border-spacing-0.5" : "border-spacing-1")}>
         <thead>
           <tr>
-            <th className="sticky left-0 z-10 min-w-[180px] bg-background p-1 text-left text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            <th
+              className={cn(
+                "sticky left-0 z-10 bg-background p-1 text-left font-semibold tracking-wide text-muted-foreground uppercase",
+                compact ? "min-w-[150px] text-[10px]" : "min-w-[180px] text-[11px]",
+              )}
+            >
               Local
             </th>
-            {columns.map((c) => (
-              <th key={c.id} className="min-w-[86px] p-1 align-bottom">
+            {columns.map((c, index) => (
+              <th key={c.id} className={cn("p-1 align-bottom", compact ? "min-w-[62px]" : "min-w-[86px]")}>
                 <button
                   onClick={() => onColSelect?.(c.id)}
-                  className="transition-ui mx-auto block max-w-[100px] text-[10px] leading-tight font-semibold text-muted-foreground uppercase hover:text-primary"
+                  className={cn(
+                    "transition-ui mx-auto block leading-tight font-semibold text-muted-foreground uppercase hover:text-primary",
+                    compact ? "max-w-[70px] text-[10px]" : "max-w-[100px] text-[10px]",
+                  )}
                   title={c.label}
                 >
-                  <span className="line-clamp-3">{c.label}</span>
+                  {showNumericHeaders ? (
+                    <span>{index + 1}</span>
+                  ) : (
+                    <span className="line-clamp-3">{c.label}</span>
+                  )}
                 </button>
               </th>
             ))}
@@ -311,13 +337,14 @@ export function Heatmap({
                 <button
                   onClick={() => onRowSelect?.(r.key)}
                   className={cn(
-                    "transition-ui block w-full truncate rounded-md px-2 py-1.5 text-left text-[12px] font-medium hover:bg-accent",
+                    "transition-ui block w-full truncate rounded-md px-2 text-left font-medium hover:bg-accent",
+                    compact ? "py-1 text-[11px]" : "py-1.5 text-[12px]",
                     selectedRow === r.key ? "bg-accent text-primary" : "text-foreground",
                   )}
                 >
                   {r.label}
                   {r.sub && (
-                    <span className="block text-[10px] font-normal text-muted-foreground">
+                    <span className={cn("block font-normal text-muted-foreground", compact ? "text-[9px]" : "text-[10px]")}>
                       {r.sub}
                     </span>
                   )}
@@ -340,8 +367,16 @@ export function Heatmap({
                   <td key={c.id}>
                     <button
                       onClick={() => onColSelect?.(c.id)}
+                      onMouseEnter={() =>
+                        setHovered({ rowLabel: r.label, rowSub: r.sub, columnLabel: c.label, value })
+                      }
+                      onMouseLeave={() => setHovered(null)}
+                      onFocus={() =>
+                        setHovered({ rowLabel: r.label, rowSub: r.sub, columnLabel: c.label, value })
+                      }
                       className={cn(
-                        "transition-ui flex h-10 w-full items-center justify-center rounded-md text-[12px] font-bold tabular-nums hover:ring-2 hover:ring-primary/40",
+                        "transition-ui flex w-full items-center justify-center rounded-md font-bold tabular-nums hover:ring-2 hover:ring-primary/40",
+                        compact ? "h-8 text-[11px]" : "h-10 text-[12px]",
                         bg,
                       )}
                       title={`${r.label}\n${c.label}\nResultado: ${fmtPct(value)}\nBenchmark: ${fmtPct(bm)}\nBrecha: ${fmtPp(gap)}\nEvaluaciones: ${n}`}
@@ -355,6 +390,30 @@ export function Heatmap({
           ))}
         </tbody>
       </table>
+      </div>
+
+      {showHoverFooter && (
+        <div
+          className={cn(
+            "pointer-events-none mt-3 rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs transition-all duration-200",
+            hovered ? "opacity-100" : "opacity-60",
+          )}
+        >
+          {hovered ? (
+            <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+              <span className="font-semibold">{hovered.rowLabel}</span>
+              {hovered.rowSub ? <span className="text-muted-foreground">{hovered.rowSub}</span> : null}
+              <span className="text-muted-foreground">·</span>
+              <span>{hovered.columnLabel}</span>
+              <span className="font-display font-bold">{fmtPct(hovered.value)}</span>
+            </span>
+          ) : (
+            <span className="text-muted-foreground">
+              Los indicadores 1 a 12 siguen el orden del formulario de evaluación.
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

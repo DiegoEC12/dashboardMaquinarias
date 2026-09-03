@@ -64,6 +64,22 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       [...new Set(dataset.evaluations.filter(fn).map((e) => e[key]))].sort((a, b) =>
         a.localeCompare(b, "es"),
       );
+
+    const tiposEvaluacion = [
+      ...new Set(
+        dataset.evaluations
+          .filter(
+            (e) =>
+              (!filters.periodo || filters.periodo.includes(e.periodo)) &&
+              (!filters.concesionaria || filters.concesionaria.includes(e.concesionaria)) &&
+              (!filters.marca || filters.marca.includes(e.marca)) &&
+              (!filters.ubicacion || filters.ubicacion.includes(e.ubicacion)),
+          )
+          .map((e) => e.tipoEvaluacion)
+          .filter((value): value is string => typeof value === "string" && value.trim().length > 0),
+      ),
+    ].sort((a, b) => a.localeCompare(b, "es"));
+
     return {
       periodos: by(() => true, "periodo"),
       concesionarias: by(
@@ -83,7 +99,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
           (!filters.marca || filters.marca.includes(e.marca)),
         "ubicacion",
       ),
-      tiposEvaluacion: ["Venta", "Callcenter", "Seminuevos", "Posventa"],
+      tiposEvaluacion,
     };
   }, [dataVersion, filters.periodo, filters.concesionaria, filters.marca]);
 

@@ -5,9 +5,11 @@ import { ScoreBar } from "@/components/dash/primitives";
 import { SectionCard } from "@/components/dash/primitives";
 import {
   MARCA_PROPIA,
+  avg,
   brechaPorIndicador,
   benchmark,
   labelOf,
+  localKey,
   pct,
   title,
   toneColor,
@@ -112,21 +114,61 @@ export function RankingPanel({
   onSelect: (id: string) => void;
   delay?: number;
 }) {
-  const rows = evs
-    .map((e) => ({ ev: e, score: scoreOf(e) }))
-    .sort((a, b) => b.score - a.score);
+  const grouped = new Map<
+    string,
+    {
+      representative: Evaluacion;
+      bestScore: number;
+      representativeId: string;
+      scores: number[];
+      count: number;
+    }
+  >();
+
+  for (const evaluation of evs) {
+    const score = scoreOf(evaluation);
+    const key = localKey(evaluation.concesionaria, evaluation.marca, evaluation.ubicacion);
+    const current = grouped.get(key);
+    if (!current) {
+      grouped.set(key, {
+        representative: evaluation,
+        bestScore: score,
+        representativeId: evaluation.id,
+        scores: [score],
+        count: 1,
+      });
+      continue;
+    }
+    current.scores.push(score);
+    current.count += 1;
+    if (score > current.bestScore) {
+      current.bestScore = score;
+      current.representative = evaluation;
+      current.representativeId = evaluation.id;
+    }
+  }
+
+  const rows = [...grouped.values()]
+    .map((group) => ({
+      ev: group.representative,
+      score: avg(group.scores),
+      representativeId: group.representativeId,
+      count: group.count,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
 
   return (
     <SectionCard title="Ranking de locales" subtitle="Clic para ver el detalle del local" delay={delay}>
       <ul className="space-y-1">
         {rows.map((r, i) => (
-          <li key={r.ev.id}>
+          <li key={r.representativeId}>
             <button
               type="button"
-              onClick={() => onSelect(r.ev.id)}
+              onClick={() => onSelect(r.representativeId)}
               className={cn(
                 "grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors",
-                selected === r.ev.id ? "bg-accent" : "hover:bg-muted",
+                selected === r.representativeId ? "bg-accent" : "hover:bg-muted",
               )}
             >
               <span className="w-5 shrink-0 text-xs font-bold text-muted-foreground">{i + 1}</span>
@@ -144,6 +186,7 @@ export function RankingPanel({
                 </span>
                 <span className="mt-1 block truncate text-[11px] text-muted-foreground">
                   {title(r.ev.ubicacion)}
+                  {r.count > 1 ? ` · ${r.count} evaluaciones` : ""}
                 </span>
               </span>
               <span
