@@ -1,5 +1,5 @@
 import { dataset } from "./dataset";
-import type { Evaluation, IndicatorResult } from "./types";
+import type { Evaluation, Indicator, IndicatorResult } from "./types";
 import { includesTipoEvaluacion } from "@/lib/tipo-evaluacion";
 
 export const THRESHOLDS = {
@@ -170,6 +170,29 @@ export function indicatorScore(evalIds: string[], indicatorId: string): number |
   );
 }
 
+export function availableIndicators(evalIds: string[]): Indicator[] {
+  const evaluationIds = new Set(evalIds);
+  const availableIds = new Set(
+    dataset.indicatorResults
+      .filter((result) => evaluationIds.has(result.idEvaluacion))
+      .map((result) => result.idIndicador),
+  );
+  return Array.from(
+    new Map(
+      dataset.indicators
+        .filter((indicator) => availableIds.has(indicator.id))
+        .map((indicator) => [
+          indicator.nombre
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim()
+            .toLocaleUpperCase("es"),
+          indicator,
+        ]),
+    ).values(),
+  ).sort((a, b) => a.orden - b.orden);
+}
+
 export function calculateGap(a: number | null, b: number | null): number | null {
   if (a === null || b === null) return null;
   return a - b;
@@ -213,7 +236,8 @@ export function calculateIndicatorPerformance(scopes: Scopes): IndicatorPerforma
   const selIds = ids(scopes.selection);
   const maqIds = ids(scopes.maquinarias);
   const compIds = ids(scopes.competencia);
-  return dataset.indicators.map((ind) => {
+  const indicators = availableIndicators(selIds);
+  return indicators.map((ind) => {
     const resultado = indicatorScore(selIds, ind.id);
     const maq = indicatorScore(maqIds, ind.id);
     const comp = indicatorScore(compIds, ind.id);

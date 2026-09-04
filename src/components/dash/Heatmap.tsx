@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { SectionCard } from "@/components/dash/primitives";
 import { cn } from "@/lib/utils";
 import {
@@ -13,7 +13,7 @@ import {
   type Evaluacion,
 } from "@/lib/analytics";
 
-type Cell = { ev: Evaluacion; n: number; nombre: string; valor: number };
+type Cell = { ev: Evaluacion; n: number; nombre: string; valor: number | null };
 
 export function Heatmap({
   evs,
@@ -31,6 +31,15 @@ export function Heatmap({
   maxViewportHeightClass?: string;
 }) {
   const [hover, setHover] = useState<Cell | null>(null);
+  const columns = useMemo(() => {
+    const evaluationIds = new Set(evs.flatMap((ev) => evalIdsByRow?.get(ev.id) ?? [ev.id]));
+    const available = new Set(
+      allIndicadores
+        .filter((indicator) => evaluationIds.has(indicator.ev))
+        .map((indicator) => indicator.n),
+    );
+    return indicadorCatalogo.filter((indicator) => available.has(indicator.n));
+  }, [evs, evalIdsByRow]);
 
   return (
     <SectionCard
@@ -53,10 +62,12 @@ export function Heatmap({
           <div className="min-w-160">
             <div
               className="grid gap-1"
-              style={{ gridTemplateColumns: `minmax(150px, 1fr) repeat(${indicadorCatalogo.length}, minmax(0, 1fr))` }}
+              style={{
+                gridTemplateColumns: `minmax(150px, 1fr) repeat(${columns.length}, minmax(0, 1fr))`,
+              }}
             >
               <div />
-              {indicadorCatalogo.map((c) => (
+              {columns.map((c) => (
                 <div
                   key={c.n}
                   className="pb-1 text-center text-[10px] font-semibold text-muted-foreground"
@@ -75,6 +86,7 @@ export function Heatmap({
                   selected={selected === ev.id}
                   onSelect={onSelect}
                   onHover={setHover}
+                  columns={columns}
                 />
               ))}
             </div>
@@ -93,8 +105,11 @@ export function Heatmap({
               <span className="text-muted-foreground">{title(hover.ev.ubicacion)}</span>
               <span className="text-muted-foreground">·</span>
               <span>{hover.nombre}</span>
-              <span className="font-display font-bold" style={{ color: toneColor[toneOf(hover.valor)] }}>
-                {pct(hover.valor)}
+              <span
+                className="font-display font-bold"
+                style={{ color: hover.valor === null ? undefined : toneColor[toneOf(hover.valor)] }}
+              >
+                {hover.valor === null ? "Sin datos" : pct(hover.valor)}
               </span>
             </span>
           ) : (
@@ -115,6 +130,7 @@ function FragmentRow({
   selected,
   onSelect,
   onHover,
+  columns,
 }: {
   ev: Evaluacion;
   evalIds: string[];
@@ -122,6 +138,7 @@ function FragmentRow({
   selected: boolean;
   onSelect: (id: string) => void;
   onHover: (cell: Cell | null) => void;
+  columns: typeof indicadorCatalogo;
 }) {
   const evaluationSet = new Set(evalIds);
   const rows = allIndicadores.filter((indicator) => evaluationSet.has(indicator.ev));
@@ -137,9 +154,11 @@ function FragmentRow({
       >
         {labelOf(ev)}
       </button>
-      {indicadorCatalogo.map((c, i) => {
-        const values = rows.filter((indicator) => indicator.n === c.n).map((indicator) => indicator.cumpl);
-        const valor = values.length ? avg(values) : 0;
+      {columns.map((c, i) => {
+        const values = rows
+          .filter((indicator) => indicator.n === c.n)
+          .map((indicator) => indicator.cumpl);
+        const valor = values.length ? avg(values) : null;
         return (
           <button
             key={c.n}
@@ -150,12 +169,14 @@ function FragmentRow({
             onFocus={() => onHover({ ev, n: c.n, nombre: c.nombre, valor })}
             className="rise-in h-7 rounded-lg transition-transform duration-200 hover:z-10 hover:scale-[1.12] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             style={{
-              backgroundColor: toneColor[toneOf(valor)],
-              opacity: 0.35 + Math.min(0.65, valor + 0.15),
+              backgroundColor: valor === null ? "var(--muted)" : toneColor[toneOf(valor)],
+              opacity: valor === null ? 0.65 : 0.35 + Math.min(0.65, valor + 0.15),
               animationDelay: `${(rowIndex * 12 + i) * 12}ms`,
             }}
-            aria-label={`${labelOf(ev)} — ${c.nombre}: ${pct(valor)}`}
-          />
+            aria-label={`${labelOf(ev)} — ${c.nombre}: ${valor === null ? "Sin datos" : pct(valor)}`}
+          >
+            {valor === null ? "—" : null}
+          </button>
         );
       })}
     </>

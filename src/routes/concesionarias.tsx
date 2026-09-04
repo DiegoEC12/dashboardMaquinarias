@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, ChevronRight, X } from "lucide-react";
 import { PageHeader } from "@/components/mystery/page-header";
@@ -7,6 +7,7 @@ import { Heatmap, MiniBars, RankingBars } from "@/components/mystery/charts";
 import {
   calculateBenchmark,
   calculateWeightedScore,
+  availableIndicators,
   getScopes,
   groupScores,
   indicatorScore,
@@ -52,6 +53,11 @@ function ConcesionariasPage() {
     ubicacion?: string;
   }>({});
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    setDrill({});
+    setSelectedKey(null);
+  }, [dataVersion, filters]);
 
   void dataVersion;
   const scopes = getScopes(filters);
@@ -142,21 +148,19 @@ function ConcesionariasPage() {
     });
   }, [drilled]);
 
-  const heatColumns = useMemo(
-    () =>
-      [...dataset.indicators]
-        .sort((a, b) => a.orden - b.orden)
-        .map((indicator) => ({ id: indicator.id, label: indicator.nombre })),
-    [dataVersion],
-  );
+  const heatColumns = useMemo(() => {
+    return availableIndicators(scopes.selection.map((evaluation) => evaluation.id)).map(
+      (indicator) => ({
+        id: indicator.id,
+        label: indicator.nombre,
+      }),
+    );
+  }, [dataVersion, scopes.selection]);
 
   const compIds = scopes.competencia.map((e) => e.id);
 
   const heatBenchmarkByIndicator = useMemo(
-    () =>
-      new Map(
-        heatColumns.map((column) => [column.id, indicatorScore(compIds, column.id)]),
-      ),
+    () => new Map(heatColumns.map((column) => [column.id, indicatorScore(compIds, column.id)])),
     [compIds, heatColumns],
   );
 
@@ -203,12 +207,12 @@ function ConcesionariasPage() {
 
   const selectedIndicators = useMemo(() => {
     const ids = selectedEvals.map((e) => e.id);
-    return dataset.indicators.map((i) => ({
+    return availableIndicators(scopes.selection.map((evaluation) => evaluation.id)).map((i) => ({
       label: i.nombre,
       value: indicatorScore(ids, i.id),
       n: ids.length,
     }));
-  }, [selectedEvals]);
+  }, [selectedEvals, scopes.selection]);
 
   function handleRankingSelect(key: string) {
     setSelectedKey(key === selectedKey ? null : key);
@@ -318,7 +322,9 @@ function ConcesionariasPage() {
               }
             />
             {visibleRanking.length === 0 ? (
-              <p className="py-4 text-sm text-muted-foreground">No hay datos para el ranking con los filtros actuales.</p>
+              <p className="py-4 text-sm text-muted-foreground">
+                No hay datos para el ranking con los filtros actuales.
+              </p>
             ) : (
               <RankingBars
                 rows={visibleRanking}
@@ -332,71 +338,71 @@ function ConcesionariasPage() {
           <section className="rounded-xl border border-border bg-card p-5">
             {selected ? (
               <>
-                  <div className="mb-4 flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h2 className="truncate text-[17px] font-bold text-foreground">
-                        {selected.label}
-                      </h2>
-                      <p className="mt-0.5 text-[13px] text-muted-foreground">
-                        {selectedEvals.length} evaluación{selectedEvals.length === 1 ? "" : "es"}
-                        {selected.marca ? ` · ${selected.marca}` : ""}
-                        {selected.ubicacion ? ` · ${selected.ubicacion}` : ""}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setSelectedKey(null)}
-                      className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"
-                      aria-label="Cerrar panel"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h2 className="truncate text-[17px] font-bold text-foreground">
+                      {selected.label}
+                    </h2>
+                    <p className="mt-0.5 text-[13px] text-muted-foreground">
+                      {selectedEvals.length} evaluación{selectedEvals.length === 1 ? "" : "es"}
+                      {selected.marca ? ` · ${selected.marca}` : ""}
+                      {selected.ubicacion ? ` · ${selected.ubicacion}` : ""}
+                    </p>
                   </div>
-
-                  <div className="grid grid-cols-3 gap-3 border-y border-border py-3">
-                    <div>
-                      <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
-                        Puntaje
-                      </p>
-                      <p className="mt-0.5 text-2xl font-bold tabular-nums">
-                        {fmtPct(selected.score)}
-                      </p>
-                      <StatusBadge status={statusFor(selected.score)} className="mt-1.5" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
-                        Benchmark
-                      </p>
-                      <p className="mt-0.5 text-2xl font-bold text-muted-foreground tabular-nums">
-                        {fmtPct(reference)}
-                      </p>
-                      <p className="mt-1.5 text-[11px] text-muted-foreground">
-                        {scopes.competenciaLabel}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
-                        Brecha
-                      </p>
-                      <div className="mt-1.5">
-                        <GapChip gap={selected.brecha} className="text-lg" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <SectionHeader title="Desempeño por indicador" className="mb-3" />
-                    <MiniBars rows={selectedIndicators} />
-                  </div>
-
                   <button
-                    onClick={handleDrillDown}
-                    className="transition-ui mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                    onClick={() => setSelectedKey(null)}
+                    className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"
+                    aria-label="Cerrar panel"
                   >
-                    {level === "local"
-                      ? "Ver detalle de una visita"
-                      : `Profundizar en ${selected.label}`}
-                    <ArrowRight className="h-4 w-4" />
+                    <X className="h-4 w-4" />
                   </button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 border-y border-border py-3">
+                  <div>
+                    <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                      Puntaje
+                    </p>
+                    <p className="mt-0.5 text-2xl font-bold tabular-nums">
+                      {fmtPct(selected.score)}
+                    </p>
+                    <StatusBadge status={statusFor(selected.score)} className="mt-1.5" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                      Benchmark
+                    </p>
+                    <p className="mt-0.5 text-2xl font-bold text-muted-foreground tabular-nums">
+                      {fmtPct(reference)}
+                    </p>
+                    <p className="mt-1.5 text-[11px] text-muted-foreground">
+                      {scopes.competenciaLabel}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                      Brecha
+                    </p>
+                    <div className="mt-1.5">
+                      <GapChip gap={selected.brecha} className="text-lg" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <SectionHeader title="Desempeño por indicador" className="mb-3" />
+                  <MiniBars rows={selectedIndicators} />
+                </div>
+
+                <button
+                  onClick={handleDrillDown}
+                  className="transition-ui mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                >
+                  {level === "local"
+                    ? "Ver detalle de una visita"
+                    : `Profundizar en ${selected.label}`}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
               </>
             ) : (
               <div className="flex h-full min-h-70 flex-col items-center justify-center gap-2 text-center">

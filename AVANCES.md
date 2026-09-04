@@ -81,7 +81,7 @@ Prueba realizada: servidor dev iniciado en http://localhost:8081/ — verificar 
 - [X] Agregado el control `Importar Excel` en la barra existente, sin cambiar la estructura visual de los módulos.
 - [X] La carga reemplaza el dataset en memoria, actualiza filtros y recalcula el Resumen Ejecutivo.
 - [X] Generado `src/data/mystery-shopping-imported.json` con el mismo formato lógico del dataset actual.
-- [X] Procesado `base-mystery-3.xlsx`: 42 evaluaciones, 434 filas de indicadores, 2060 preguntas y 12 indicadores únicos.
+- [x] Procesado `Base_Mystery_Shopping_Consolidada (8).xlsx`: 42 evaluaciones, 434 filas de indicadores y 2494 preguntas.
 - [X] Agregada la acción para restaurar el dataset original y quitar los datos importados de la sesión.
 - [X] Validaciones ejecutadas: `npx tsc --noEmit`, `npx prettier --check`, `npm run data:excel` y `npm run build`.
 - [ ] Revisar visualmente los datos importados en cada ruta y definir el proveedor de base de datos.

@@ -16,6 +16,7 @@ import {
   type PreguntaRow,
 } from "./analytics";
 import { normalizeTipoEvaluacion } from "@/lib/tipo-evaluacion";
+import bundledRaw from "@/data/mystery-shopping-imported.json";
 
 const IMPORT_STORAGE_KEYS = [
   "dashboard-maquinarias.imported-payload.v2",
@@ -99,6 +100,18 @@ function clearPersistedImportedPayload() {
   }
 }
 
+function loadBundledPayload(): ImportedPayload {
+  const analytics = {
+    evaluations: bundledRaw.evaluaciones as Evaluacion[],
+    indicators: bundledRaw.indicadores as IndicadorRow[],
+    questions: bundledRaw.preguntas as PreguntaRow[],
+  };
+  return {
+    dataset: buildDatasetFromAnalytics(analytics, bundledRaw.meta.source as string),
+    analytics,
+  };
+}
+
 export function applyImportedPayload(payload: ImportedPayload) {
   replaceDataset(payload.dataset);
   syncAnalyticsData(payload.analytics);
@@ -116,10 +129,8 @@ export function hydrateImportedDataFromStorage(): boolean {
     return true;
   }
 
-  // Modo Excel-only: sin payload persistido no se vuelve al dataset base.
-  replaceDataset(emptyDataset("excel-import-empty-startup"));
-  syncAnalyticsData(emptyAnalytics());
-  return false;
+  applyImportedPayload(loadBundledPayload());
+  return true;
 }
 
 const SHEET_ALIASES = {
@@ -324,7 +335,6 @@ export async function importExcelFile(file: File): Promise<{
 }
 
 export function resetImportedData() {
-  replaceDataset(emptyDataset("excel-import-empty-reset"));
-  syncAnalyticsData(emptyAnalytics());
+  applyImportedPayload(loadBundledPayload());
   clearPersistedImportedPayload();
 }

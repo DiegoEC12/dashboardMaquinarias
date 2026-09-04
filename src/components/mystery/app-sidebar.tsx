@@ -88,7 +88,7 @@ export function AppSidebar() {
       {/* Desktop */}
       <aside
         className={cn(
-          "transition-ui sticky top-0 hidden h-screen shrink-0 flex-col bg-sidebar lg:flex",
+          "transition-ui border-2 sticky top-0 hidden h-screen shrink-0 flex-col bg-sidebar lg:flex",
           collapsed ? "w-[68px]" : "w-60",
         )}
       >

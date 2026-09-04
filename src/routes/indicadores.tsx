@@ -9,8 +9,8 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { getScopes, indicatorScore } from "@/lib/mystery/calculations";
-import { indicadorCatalogo, localKey, preguntas } from "@/lib/analytics";
+import { availableIndicators, getScopes, indicatorScore } from "@/lib/mystery/calculations";
+import { localKey, preguntas } from "@/lib/analytics";
 import { useFilters } from "@/lib/mystery/filter-context";
 import CompactFilterControls from "@/components/dash/CompactFilterControls";
 
@@ -42,9 +42,10 @@ function IndicadoresPage() {
 
   const indicatorList = useMemo(() => {
     const evaluationIds = evs.map((evaluation) => evaluation.id);
-    return indicadorCatalogo.map((indicator) => ({
+    return availableIndicators(evaluationIds).map((indicator) => ({
       ...indicator,
-      valor: indicatorScore(evaluationIds, `IND_${String(indicator.n).padStart(2, "0")}`) ?? 0,
+      n: indicator.orden,
+      valor: indicatorScore(evaluationIds, indicator.id) ?? 0,
     }));
   }, [evs]);
 
@@ -121,96 +122,96 @@ function IndicadoresPage() {
             ) : (
               <Accordion type="single" collapsible className="mt-5">
                 {indicatorList.map((indicator) => (
-                <AccordionItem
-                  key={indicator.n}
-                  value={String(indicator.n)}
-                  className="border-border"
-                >
-                  <AccordionTrigger
-                    className="gap-4 py-4 hover:no-underline"
-                    onClick={() => {
-                      setSelectedIndicator(indicator.n);
-                      setSelectedLocal(null);
-                    }}
+                  <AccordionItem
+                    key={indicator.n}
+                    value={String(indicator.n)}
+                    className="border-border"
                   >
-                    <span className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 text-left">
-                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-muted text-xs font-semibold">
-                        {indicator.n}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-medium">
-                          {indicator.nombre}
+                    <AccordionTrigger
+                      className="gap-4 py-4 hover:no-underline"
+                      onClick={() => {
+                        setSelectedIndicator(indicator.n);
+                        setSelectedLocal(null);
+                      }}
+                    >
+                      <span className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 text-left">
+                        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-muted text-xs font-semibold">
+                          {indicator.n}
                         </span>
-                        <span className="mt-1 block text-xs text-muted-foreground">
-                          Peso: {(indicator.peso * 100).toFixed(0)}%
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-medium">
+                            {indicator.nombre}
+                          </span>
+                          <span className="mt-1 block text-xs text-muted-foreground">
+                            Peso: {(indicator.peso * 100).toFixed(0)}%
+                          </span>
                         </span>
-                      </span>
-                      <span className="flex shrink-0 items-center gap-3">
-                        <span className="hidden h-2 w-24 overflow-hidden rounded-full bg-muted sm:block">
-                          <span
-                            className={cn(
-                              "block h-full rounded-full",
-                              getBarClass(indicator.valor * 100),
-                            )}
-                            style={{ width: `${(indicator.valor * 100).toFixed(0)}%` }}
-                          />
-                        </span>
-                        <span className="w-11 text-right text-sm font-semibold tabular-nums">
-                          {(indicator.valor * 100).toFixed(0)}%
-                        </span>
-                      </span>
-                    </span>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-5">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      Nota del indicador por local · haz clic para ver el resumen
-                    </div>
-                    <ul className="mt-3 grid gap-2 md:grid-cols-2">
-                      {locales.map((local) => {
-                        const percentage = (localScores.get(local.id) ?? 0) * 100;
-                        return (
-                          <li key={local.id}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedIndicator(indicator.n);
-                                setSelectedLocal(local.id);
-                              }}
+                        <span className="flex shrink-0 items-center gap-3">
+                          <span className="hidden h-2 w-24 overflow-hidden rounded-full bg-muted sm:block">
+                            <span
                               className={cn(
-                                "flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                                selectedLocal === local.id && selectedIndicator === indicator.n
-                                  ? "bg-accent"
-                                  : "border-border hover:bg-muted/60",
+                                "block h-full rounded-full",
+                                getBarClass(indicator.valor * 100),
                               )}
-                            >
-                              <span className="min-w-0 flex-1 truncate">{local.nombre}</span>
-                              <span className="h-2 w-16 shrink-0 overflow-hidden rounded-full bg-muted">
-                                <span
-                                  className={cn(
-                                    "block h-full rounded-full",
-                                    getBarClass(percentage),
-                                  )}
-                                  style={{ width: `${percentage}%` }}
-                                />
-                              </span>
-                              <span
+                              style={{ width: `${(indicator.valor * 100).toFixed(0)}%` }}
+                            />
+                          </span>
+                          <span className="w-11 text-right text-sm font-semibold tabular-nums">
+                            {(indicator.valor * 100).toFixed(0)}%
+                          </span>
+                        </span>
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        Nota del indicador por local · haz clic para ver el resumen
+                      </div>
+                      <ul className="mt-3 grid gap-2 md:grid-cols-2">
+                        {locales.map((local) => {
+                          const percentage = (localScores.get(local.id) ?? 0) * 100;
+                          return (
+                            <li key={local.id}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedIndicator(indicator.n);
+                                  setSelectedLocal(local.id);
+                                }}
                                 className={cn(
-                                  "w-10 shrink-0 text-right font-semibold tabular-nums",
-                                  getTextClass(percentage),
+                                  "flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+                                  selectedLocal === local.id && selectedIndicator === indicator.n
+                                    ? "bg-accent"
+                                    : "border-border hover:bg-muted/60",
                                 )}
                               >
-                                {Math.round(percentage)}%
-                              </span>
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                    <div className="mt-4 text-xs text-muted-foreground">
-                      Promedio de la red: {(indicator.valor * 100).toFixed(0)}%
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+                                <span className="min-w-0 flex-1 truncate">{local.nombre}</span>
+                                <span className="h-2 w-16 shrink-0 overflow-hidden rounded-full bg-muted">
+                                  <span
+                                    className={cn(
+                                      "block h-full rounded-full",
+                                      getBarClass(percentage),
+                                    )}
+                                    style={{ width: `${percentage}%` }}
+                                  />
+                                </span>
+                                <span
+                                  className={cn(
+                                    "w-10 shrink-0 text-right font-semibold tabular-nums",
+                                    getTextClass(percentage),
+                                  )}
+                                >
+                                  {Math.round(percentage)}%
+                                </span>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      <div className="mt-4 text-xs text-muted-foreground">
+                        Promedio de la red: {(indicator.valor * 100).toFixed(0)}%
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
                 ))}
               </Accordion>
             )}
@@ -237,10 +238,7 @@ function IndicadoresPage() {
                   <h3 className="text-sm font-semibold">{sidebarDetail.local.nombre}</h3>
                   <div className="mt-1 text-xs text-muted-foreground">
                     Indicador:{" "}
-                    {
-                      indicadorCatalogo.find((indicator) => indicator.n === selectedIndicator)
-                        ?.nombre
-                    }
+                    {indicatorList.find((indicator) => indicator.n === selectedIndicator)?.nombre}
                   </div>
                 </div>
                 <div className="flex items-center justify-between">

@@ -21,11 +21,11 @@ Panel ejecutivo de Mystery Shopping para analizar evaluaciones de concesionarias
 
 ## Datos
 
-El dataset base está en [src/data/dataset.json](src/data/dataset.json). El Excel de origen actual es `base-mystery-3.xlsx` y contiene:
+El dataset base está en [src/data/mystery-shopping-imported.json](src/data/mystery-shopping-imported.json). El Excel de origen actual es `Base_Mystery_Shopping_Consolidada (8).xlsx` y contiene:
 
 - 42 evaluaciones.
 - 434 filas de indicadores.
-- 2060 preguntas.
+- 2494 preguntas.
 - 9756 opciones de respuesta.
 - 12 indicadores únicos.
 

@@ -455,7 +455,7 @@ export function MiniBars({ rows }: { rows: { label: string; value: number | null
         return (
           <div
             key={r.label}
-            className="grid grid-cols-[150px_minmax(0,1fr)_52px] items-center gap-3 max-md:grid-cols-[110px_minmax(0,1fr)_48px]"
+            className="grid grid-cols-[150px_minmax(0,1fr)_64px] items-center gap-3 max-md:grid-cols-[110px_minmax(0,1fr)_58px]"
             title={`${r.label}: ${fmtPct(r.value)} (${r.n} evaluaciones)`}
           >
             <span className="truncate text-[12px] font-medium text-foreground">{r.label}</span>
@@ -486,7 +486,7 @@ export function MiniBars({ rows }: { rows: { label: string; value: number | null
                   : "text-muted-foreground",
               )}
             >
-              {fmtPct(r.value, 0)}
+              {r.value === null ? "Sin datos" : fmtPct(r.value, 0)}
             </span>
           </div>
         );

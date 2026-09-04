@@ -2,7 +2,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 const XLSX = require("xlsx");
 
-const workbook = XLSX.readFile(path.resolve("base-mystery-3.xlsx"), { cellDates: true });
+const sourceFile = "Base_Mystery_Shopping_Consolidada (8).xlsx";
+const workbook = XLSX.readFile(path.resolve(sourceFile), { cellDates: true });
 const rows = (sheet) => XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { defval: null });
 const evaluations = rows("Evaluaciones");
 const indicatorRows = rows("Indicadores");
@@ -10,7 +11,7 @@ const questionRows = rows("Preguntas");
 
 const output = {
   meta: {
-    source: "base-mystery-3.xlsx",
+    source: sourceFile,
     importedAt: new Date().toISOString(),
     evaluationCount: evaluations.length,
   },
@@ -22,7 +23,12 @@ const output = {
     puntaje: Number(row.puntaje_total) || 0,
     resumen: row.resumen_visita ?? null,
     recomendaciones: row.recomendaciones ?? null,
-    tipoEvaluacion: "Venta",
+    tipoEvaluacion:
+      row.origen_canal === "callcenter"
+        ? "Call Center"
+        : row.origen_canal === "seminuevos"
+          ? "Seminuevos"
+          : "Ventas",
   })),
   indicadores: indicatorRows.map((row) => ({
     ev: String(row.id_evaluacion),
