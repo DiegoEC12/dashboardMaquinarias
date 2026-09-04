@@ -69,14 +69,15 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     setFilters((prev) => {
       const next = {
         ...prev,
-        [key]: key === "tipoEvaluacion" ? coerceSingleTipoEvaluacion(value) : value,
+        [key]: key === "tipoEvaluacion" ? coerceSingleTipoEvaluacion(value, "Ventas") : value,
       };
 
       const matches = (evaluation: (typeof dataset.evaluations)[number], filters: GlobalFilters) =>
-        (!filters.periodo || filters.periodo.includes(evaluation.periodo)) &&
-        (!filters.concesionaria || filters.concesionaria.includes(evaluation.concesionaria)) &&
-        (!filters.marca || filters.marca.includes(evaluation.marca)) &&
-        (!filters.ubicacion || filters.ubicacion.includes(evaluation.ubicacion)) &&
+        (!filters.periodo?.length || filters.periodo.includes(evaluation.periodo)) &&
+        (!filters.concesionaria?.length ||
+          filters.concesionaria.includes(evaluation.concesionaria)) &&
+        (!filters.marca?.length || filters.marca.includes(evaluation.marca)) &&
+        (!filters.ubicacion?.length || filters.ubicacion.includes(evaluation.ubicacion)) &&
         includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion);
 
       const scopedEvaluations = dataset.evaluations.filter((evaluation) => matches(evaluation, next));
@@ -125,10 +126,11 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       evaluation: (typeof dataset.evaluations)[number],
       criteria: Partial<GlobalFilters>,
     ) =>
-      (!criteria.periodo || criteria.periodo.includes(evaluation.periodo)) &&
-      (!criteria.concesionaria || criteria.concesionaria.includes(evaluation.concesionaria)) &&
-      (!criteria.marca || criteria.marca.includes(evaluation.marca)) &&
-      (!criteria.ubicacion || criteria.ubicacion.includes(evaluation.ubicacion)) &&
+      (!criteria.periodo?.length || criteria.periodo.includes(evaluation.periodo)) &&
+      (!criteria.concesionaria?.length ||
+        criteria.concesionaria.includes(evaluation.concesionaria)) &&
+      (!criteria.marca?.length || criteria.marca.includes(evaluation.marca)) &&
+      (!criteria.ubicacion?.length || criteria.ubicacion.includes(evaluation.ubicacion)) &&
       includesTipoEvaluacion(criteria.tipoEvaluacion ?? null, evaluation.tipoEvaluacion);
 
     const optionsFor = (
@@ -186,11 +188,25 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     filters.tipoEvaluacion,
   ]);
 
-  const hasFilters = Object.values(filters).some((values) => values !== null && values.length > 0);
+  const hasFilters =
+    (filters.periodo?.length ?? 0) > 0 ||
+    (filters.concesionaria?.length ?? 0) > 0 ||
+    (filters.marca?.length ?? 0) > 0 ||
+    (filters.ubicacion?.length ?? 0) > 0 ||
+    (filters.indicador?.length ?? 0) > 0 ||
+    ((filters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas");
   const activeLabel = hasFilters
-    ? Object.values(filters)
-        .filter((values) => values !== null && values.length > 0)
-        .map((values) => values.join(", "))
+    ? [
+        ...(filters.periodo?.length ? [filters.periodo.join(", ")] : []),
+        ...(filters.concesionaria?.length ? [filters.concesionaria.join(", ")] : []),
+        ...(filters.marca?.length ? [filters.marca.join(", ")] : []),
+        ...(filters.ubicacion?.length ? [filters.ubicacion.join(", ")] : []),
+        ...(filters.indicador?.length ? [filters.indicador.join(", ")] : []),
+        ...((filters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas"
+          ? [filters.tipoEvaluacion?.join(", ") ?? ""]
+          : []),
+      ]
+        .filter(Boolean)
         .join(" · ")
     : "Todas las evaluaciones";
 

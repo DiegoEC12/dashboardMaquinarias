@@ -33,7 +33,7 @@ type CompetenciaFilters = {
 const EMPTY_BENCHMARK_FILTERS: BenchmarkFilters = {
   marca: null,
   ubicacion: null,
-  tipoEvaluacion: null,
+  tipoEvaluacion: ["Ventas"],
 };
 
 const EMPTY_COMPETENCIA_FILTERS: CompetenciaFilters = {
@@ -69,17 +69,18 @@ function BenchmarkPage() {
 
   const matchBenchmarkFilters = useCallback(
     (evaluation: (typeof dataset.evaluations)[number], filters: BenchmarkFilters) =>
-      (!filters.marca || filters.marca.includes(evaluation.marca)) &&
-      (!filters.ubicacion || filters.ubicacion.includes(evaluation.ubicacion)) &&
+      (!filters.marca?.length || filters.marca.includes(evaluation.marca)) &&
+      (!filters.ubicacion?.length || filters.ubicacion.includes(evaluation.ubicacion)) &&
       includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion),
     [],
   );
 
   const matchCompetenciaFilters = useCallback(
     (evaluation: (typeof dataset.evaluations)[number], filters: CompetenciaFilters) =>
-      (!filters.concesionaria || filters.concesionaria.includes(evaluation.concesionaria)) &&
-      (!filters.marca || filters.marca.includes(evaluation.marca)) &&
-      (!filters.ubicacion || filters.ubicacion.includes(evaluation.ubicacion)),
+      (!filters.concesionaria?.length ||
+        filters.concesionaria.includes(evaluation.concesionaria)) &&
+      (!filters.marca?.length || filters.marca.includes(evaluation.marca)) &&
+      (!filters.ubicacion?.length || filters.ubicacion.includes(evaluation.ubicacion)),
     [],
   );
 
@@ -88,7 +89,7 @@ function BenchmarkPage() {
       evaluation: (typeof dataset.evaluations)[number],
       filters: Pick<BenchmarkFilters, "ubicacion" | "tipoEvaluacion">,
     ) =>
-      (!filters.ubicacion || filters.ubicacion.includes(evaluation.ubicacion)) &&
+      (!filters.ubicacion?.length || filters.ubicacion.includes(evaluation.ubicacion)) &&
       includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion),
     [],
   );
@@ -119,7 +120,7 @@ function BenchmarkPage() {
     setBenchmarkFilters((prev) => {
       const next: BenchmarkFilters = {
         ...prev,
-        [key]: key === "tipoEvaluacion" ? coerceSingleTipoEvaluacion(value) : value,
+        [key]: key === "tipoEvaluacion" ? coerceSingleTipoEvaluacion(value, "Ventas") : value,
       };
 
       const optionsFor = (targetKey: keyof BenchmarkFilters) => {
@@ -249,8 +250,8 @@ function BenchmarkPage() {
     () =>
       selectedMaquinarias.filter(
         (evaluation) =>
-          (!competenciaFilters.marca || competenciaFilters.marca.includes(evaluation.marca)) &&
-          (!competenciaFilters.ubicacion ||
+          (!competenciaFilters.marca?.length || competenciaFilters.marca.includes(evaluation.marca)) &&
+          (!competenciaFilters.ubicacion?.length ||
             competenciaFilters.ubicacion.includes(evaluation.ubicacion)),
       ),
     [competenciaFilters.marca, competenciaFilters.ubicacion, selectedMaquinarias],
@@ -281,11 +282,11 @@ function BenchmarkPage() {
         competenciaFilters.marca?.length ||
         competenciaFilters.ubicacion?.length ||
         benchmarkFilters.ubicacion?.length ||
-        benchmarkFilters.tipoEvaluacion?.length
+        (benchmarkFilters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas"
           ? "Competencia filtrada"
           : benchmarkFilters.marca?.length ||
               benchmarkFilters.ubicacion?.length ||
-              benchmarkFilters.tipoEvaluacion?.length
+              (benchmarkFilters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas"
             ? "Competencia en contexto Maquinarias"
             : "Competencia (todas)",
     }),
@@ -305,11 +306,11 @@ function BenchmarkPage() {
   const benchmarkActiveCount = [
     benchmarkFilters.marca,
     benchmarkFilters.ubicacion,
-    benchmarkFilters.tipoEvaluacion,
     competenciaFilters.concesionaria,
     competenciaFilters.marca,
     competenciaFilters.ubicacion,
-  ].filter((values) => values !== null && values.length > 0).length;
+  ].filter((values) => values !== null && values.length > 0).length +
+    ((benchmarkFilters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas" ? 1 : 0);
   const bench = useMemo(() => calculateBenchmark(scopes), [scopes]);
   const indicators = useMemo(() => calculateIndicatorPerformance(scopes), [scopes]);
 
@@ -427,7 +428,8 @@ function BenchmarkPage() {
                       value: item,
                       label: item,
                     }))}
-                    singleOrAll
+                    singleSelect
+                    showAllOption={false}
                     onChange={(values) => setBenchmarkFilter("tipoEvaluacion", values)}
                   />
                   <Button

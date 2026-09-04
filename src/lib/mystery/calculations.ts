@@ -44,7 +44,7 @@ export const EMPTY_FILTERS: GlobalFilters = {
   concesionaria: null,
   marca: null,
   ubicacion: null,
-  tipoEvaluacion: null,
+  tipoEvaluacion: ["Ventas"],
   indicador: null,
 };
 
@@ -52,12 +52,12 @@ export function filterEvaluations(evals: Evaluation[], f: GlobalFilters): Evalua
   const selectedIndicators = f.indicador;
   return evals.filter(
     (e) =>
-      (!f.periodo || f.periodo.includes(e.periodo)) &&
-      (!f.concesionaria || f.concesionaria.includes(e.concesionaria)) &&
-      (!f.marca || f.marca.includes(e.marca)) &&
-      (!f.ubicacion || f.ubicacion.includes(e.ubicacion)) &&
+      (!f.periodo?.length || f.periodo.includes(e.periodo)) &&
+      (!f.concesionaria?.length || f.concesionaria.includes(e.concesionaria)) &&
+      (!f.marca?.length || f.marca.includes(e.marca)) &&
+      (!f.ubicacion?.length || f.ubicacion.includes(e.ubicacion)) &&
       includesTipoEvaluacion(f.tipoEvaluacion, e.tipoEvaluacion) &&
-      (!selectedIndicators ||
+      (!selectedIndicators?.length ||
         dataset.indicatorResults.some(
           (result) =>
             result.idEvaluacion === e.id &&
@@ -177,20 +177,9 @@ export function availableIndicators(evalIds: string[]): Indicator[] {
       .filter((result) => evaluationIds.has(result.idEvaluacion))
       .map((result) => result.idIndicador),
   );
-  return Array.from(
-    new Map(
-      dataset.indicators
-        .filter((indicator) => availableIds.has(indicator.id))
-        .map((indicator) => [
-          indicator.nombre
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .trim()
-            .toLocaleUpperCase("es"),
-          indicator,
-        ]),
-    ).values(),
-  ).sort((a, b) => a.orden - b.orden);
+  return dataset.indicators
+    .filter((indicator) => availableIds.has(indicator.id))
+    .sort((a, b) => a.orden - b.orden);
 }
 
 export function calculateGap(a: number | null, b: number | null): number | null {

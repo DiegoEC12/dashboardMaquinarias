@@ -63,7 +63,8 @@ export function CompactFilterControls() {
             label="Tipo de evaluación"
             values={filters.tipoEvaluacion}
             options={options.tiposEvaluacion.map((type) => ({ value: type, label: type }))}
-            singleOrAll
+            singleSelect
+            showAllOption={false}
             onChange={(values) => setFilter("tipoEvaluacion", values)}
           />
         </div>

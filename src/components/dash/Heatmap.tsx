@@ -3,7 +3,6 @@ import { SectionCard } from "@/components/dash/primitives";
 import { cn } from "@/lib/utils";
 import {
   avg,
-  indicadorCatalogo,
   indicadores as allIndicadores,
   labelOf,
   pct,
@@ -14,6 +13,7 @@ import {
 } from "@/lib/analytics";
 
 type Cell = { ev: Evaluacion; n: number; nombre: string; valor: number | null };
+type HeatmapColumn = { n: number; nombre: string; peso: number };
 
 export function Heatmap({
   evs,
@@ -31,14 +31,16 @@ export function Heatmap({
   maxViewportHeightClass?: string;
 }) {
   const [hover, setHover] = useState<Cell | null>(null);
-  const columns = useMemo(() => {
+  const columns: HeatmapColumn[] = useMemo(() => {
     const evaluationIds = new Set(evs.flatMap((ev) => evalIdsByRow?.get(ev.id) ?? [ev.id]));
-    const available = new Set(
-      allIndicadores
-        .filter((indicator) => evaluationIds.has(indicator.ev))
-        .map((indicator) => indicator.n),
-    );
-    return indicadorCatalogo.filter((indicator) => available.has(indicator.n));
+    return Array.from(
+      new Map(
+        allIndicadores
+          .filter((indicator) => evaluationIds.has(indicator.ev))
+          .sort((a, b) => a.n - b.n)
+          .map((indicator) => [indicator.n, indicator]),
+      ).values(),
+    ).sort((a, b) => a.n - b.n);
   }, [evs, evalIdsByRow]);
 
   return (
@@ -138,7 +140,7 @@ function FragmentRow({
   selected: boolean;
   onSelect: (id: string) => void;
   onHover: (cell: Cell | null) => void;
-  columns: typeof indicadorCatalogo;
+  columns: HeatmapColumn[];
 }) {
   const evaluationSet = new Set(evalIds);
   const rows = allIndicadores.filter((indicator) => evaluationSet.has(indicator.ev));

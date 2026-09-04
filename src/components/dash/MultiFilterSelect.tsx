@@ -2,6 +2,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 type Option = { value: string; label: string };
 
@@ -11,6 +12,8 @@ type Props = {
   options: Option[];
   allLabel?: string;
   singleOrAll?: boolean;
+  singleSelect?: boolean;
+  showAllOption?: boolean;
   onChange: (values: string[] | null) => void;
 };
 
@@ -20,14 +23,22 @@ export function MultiFilterSelect({
   options,
   allLabel = "Todas",
   singleOrAll = false,
+  singleSelect = false,
+  showAllOption = true,
   onChange,
 }: Props) {
-  const allSelected = singleOrAll
+  const allSelected = singleSelect
+    ? false
+    : singleOrAll
     ? values === null
     : values === null ||
       (options.length > 0 && values.length > 0 && options.every((option) => values.includes(option.value)));
   const selectedLabel = allSelected
     ? allLabel
+    : singleSelect
+      ? (values?.[0]
+          ? (options.find((option) => option.value === values[0])?.label ?? values[0])
+          : (options[0]?.label ?? ""))
     : values.length === 0
       ? "Ninguna"
     : values.length === 1
@@ -43,6 +54,12 @@ export function MultiFilterSelect({
   };
 
   const toggleOption = (value: string, checked: boolean) => {
+    if (singleSelect) {
+      if (!checked) return;
+      onChange([value]);
+      return;
+    }
+
     if (singleOrAll) {
       onChange(checked ? [value] : []);
       return;
@@ -55,7 +72,7 @@ export function MultiFilterSelect({
     onChange(next.length === options.length ? null : next);
   };
 
-  const lockedBySingleMode =
+  const lockedBySingleOrAllMode =
     singleOrAll && values !== null && values.length === 1 ? values[0] : null;
 
   return (
@@ -77,19 +94,49 @@ export function MultiFilterSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-64 p-2">
-        <label className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold hover:bg-muted">
-          <Checkbox
-            checked={allSelected}
-            onCheckedChange={(checked) => toggleAll(checked === true)}
-          />
-          <span>{allLabel}</span>
-          {allSelected && <Check className="ml-auto h-4 w-4 text-primary" />}
-        </label>
-        <div className="my-1 border-t border-border" />
+        {showAllOption && (
+          <>
+            <label className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm font-semibold hover:bg-muted">
+              <Checkbox
+                checked={allSelected}
+                onCheckedChange={(checked) => toggleAll(checked === true)}
+              />
+              <span>{allLabel}</span>
+              {allSelected && <Check className="ml-auto h-4 w-4 text-primary" />}
+            </label>
+            <div className="my-1 border-t border-border" />
+          </>
+        )}
         <div className="max-h-64 overflow-y-auto">
           {options.map((option) => {
-            const checked = singleOrAll ? (values ?? []).includes(option.value) : allSelected || values.includes(option.value);
-            const disabled = lockedBySingleMode !== null && !checked;
+            const checked = singleSelect
+              ? (values ?? []).includes(option.value)
+              : singleOrAll
+                ? (values ?? []).includes(option.value)
+                : allSelected || values.includes(option.value);
+            const disabled = lockedBySingleOrAllMode !== null && !checked;
+            if (singleSelect) {
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => toggleOption(option.value, true)}
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted"
+                >
+                  <span
+                    className={cn(
+                      "flex h-4 w-4 items-center justify-center rounded-full border",
+                      checked ? "border-primary text-primary" : "border-border text-transparent",
+                    )}
+                  >
+                    <span className="h-2 w-2 rounded-full bg-current" />
+                  </span>
+                  <span className="min-w-0 truncate">{option.label}</span>
+                  {checked && <Check className="ml-auto h-4 w-4 text-primary" />}
+                </button>
+              );
+            }
+
             return (
               <label
                 key={option.value}

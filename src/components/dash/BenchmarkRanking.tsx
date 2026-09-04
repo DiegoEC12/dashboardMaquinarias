@@ -195,7 +195,7 @@ export function RankingPanel({
       count: group.count,
     }))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
+    .slice(0, 10);
 
   return (
     <SectionCard
@@ -203,7 +203,7 @@ export function RankingPanel({
       subtitle="Clic para ver el detalle del local"
       delay={delay}
     >
-      <ul className="space-y-1">
+      <ul className="max-h-95 space-y-1 overflow-y-auto pr-1">
         {rows.map((r, i) => (
           <li key={r.representativeId}>
             <button

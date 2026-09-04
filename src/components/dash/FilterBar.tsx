@@ -133,7 +133,8 @@ export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
             label="Tipo de evaluación"
             values={filters.tipoEvaluacion}
             options={tipoEvaluacionOptions}
-            singleOrAll
+            singleSelect
+            showAllOption={false}
             onChange={(values) => onChange({ tipoEvaluacion: values })}
           />
         </div>

@@ -24,11 +24,11 @@ export function includesTipoEvaluacion(selected: string[] | null, value: unknown
   return selected.some((item) => normalizeKey(normalizeTipoEvaluacion(item)) === currentKey);
 }
 
-export function coerceSingleTipoEvaluacion(values: string[] | null): string[] | null {
-  if (values === null) return null;
+export function coerceSingleTipoEvaluacion(values: string[] | null, fallback = "Ventas"): string[] {
+  if (values === null) return [normalizeTipoEvaluacion(fallback)];
   const cleaned = values
     .map((item) => normalizeTipoEvaluacion(item))
     .filter((item) => item.trim().length > 0);
-  if (!cleaned.length) return [];
+  if (!cleaned.length) return [normalizeTipoEvaluacion(fallback)];
   return [cleaned[0]];
 }

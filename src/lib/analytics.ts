@@ -111,7 +111,7 @@ export const EMPTY_FILTERS: Filters = {
   marca: null,
   ubicacion: null,
   indicador: null,
-  tipoEvaluacion: null,
+  tipoEvaluacion: ["Ventas"],
 };
 
 export function filterEvaluaciones(f: Filters) {
@@ -162,7 +162,8 @@ export const toneLabel: Record<Tone, string> = {
 /** Average per indicator across a set of evaluations. */
 export function indicadorAverages(evs: Evaluacion[]) {
   const ids = new Set(evs.map((e) => e.id));
-  return indicadorCatalogo.map((c) => {
+  const catalogo = indicadorCatalogoPara(evs);
+  return catalogo.map((c) => {
     const rows = indicadores.filter((i) => ids.has(i.ev) && i.n === c.n);
     return { ...c, valor: avg(rows.map((r) => r.cumpl)) };
   });
@@ -202,7 +203,7 @@ export function brechaPorIndicador(evs: Evaluacion[]) {
       );
       return { ...c, own, rival, gap: own !== null && rival !== null ? own - rival : null };
     })
-    .sort((a, b) => (a.own ?? Infinity) - (b.own ?? Infinity));
+    .sort((a, b) => (b.own ?? -Infinity) - (a.own ?? -Infinity));
 }
 
 export type PreguntaAgg = {

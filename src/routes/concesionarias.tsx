@@ -123,10 +123,7 @@ function ConcesionariasPage() {
     return rows.sort((a, b) => val(b) - val(a));
   }, [drilled, level, reference, sort]);
 
-  const visibleRanking = useMemo(
-    () => (level === "local" ? ranking.slice(0, 5) : ranking),
-    [ranking, level],
-  );
+  const visibleRanking = useMemo(() => ranking, [ranking]);
 
   const heatRows = useMemo(() => {
     const map = new Map<string, { key: string; label: string; sub: string; ids: string[] }>();
@@ -326,12 +323,14 @@ function ConcesionariasPage() {
                 No hay datos para el ranking con los filtros actuales.
               </p>
             ) : (
-              <RankingBars
-                rows={visibleRanking}
-                reference={reference}
-                selectedKey={selectedKey}
-                onSelect={handleRankingSelect}
-              />
+              <div className="max-h-120 overflow-y-auto pr-1">
+                <RankingBars
+                  rows={visibleRanking}
+                  reference={reference}
+                  selectedKey={selectedKey}
+                  onSelect={handleRankingSelect}
+                />
+              </div>
             )}
           </section>
 

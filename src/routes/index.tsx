@@ -7,6 +7,7 @@ import { Heatmap } from "@/components/dash/Heatmap";
 import { EvaluatorPanel, StrengthsOpportunities } from "@/components/dash/EvaluatorPanel";
 import {
   EMPTY_FILTERS,
+  MARCA_PROPIA,
   filterEvaluaciones,
   indicadorAverages,
   localKey,
@@ -41,6 +42,12 @@ function Dashboard() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const evs = useMemo(() => filterEvaluaciones(filters), [filters, dataVersion]);
+  const benchmarkEvs = useMemo(() => {
+    const baseByType = filterEvaluaciones({ ...EMPTY_FILTERS, tipoEvaluacion: filters.tipoEvaluacion });
+    const fixedMaquinarias = baseByType.filter((evaluation) => evaluation.concesionaria === MARCA_PROPIA);
+    const filteredCompetencia = evs.filter((evaluation) => evaluation.concesionaria !== MARCA_PROPIA);
+    return [...fixedMaquinarias, ...filteredCompetencia];
+  }, [evs, filters.tipoEvaluacion]);
   const scoreOf = useMemo(
     () => (e: Parameters<typeof scoreForEval>[0]) => {
       if (!filters.indicador?.length) return e.puntaje;
@@ -124,7 +131,12 @@ function Dashboard() {
   }, [selectedId, evs]);
 
   const selected = evs.find((e) => e.id === selectedId) ?? null;
-  const activeCount = Object.values(filters).filter((v) => v !== null && v.length > 0).length;
+  const activeCount =
+    ((filters.concesionaria?.length ?? 0) > 0 ? 1 : 0) +
+    ((filters.marca?.length ?? 0) > 0 ? 1 : 0) +
+    ((filters.ubicacion?.length ?? 0) > 0 ? 1 : 0) +
+    ((filters.indicador?.length ?? 0) > 0 ? 1 : 0) +
+    ((filters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas" ? 1 : 0);
 
   const handleChange = (patch: Partial<Filters>) => {
     setFilters((prev) => ({ ...prev, ...patch }));
@@ -151,7 +163,8 @@ function Dashboard() {
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="space-y-4 lg:col-span-2">
             <div className="grid items-start gap-4 md:grid-cols-2">
-              <BenchmarkPanel evs={evs} delay={60} />
+              <BenchmarkPanel evs={benchmarkEvs} delay={60} />
+
               <RankingPanel
                 evs={evs}
                 scoreOf={scoreOf}

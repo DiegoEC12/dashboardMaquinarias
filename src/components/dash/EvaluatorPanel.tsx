@@ -28,13 +28,13 @@ export function EvaluatorPanel({
   const rows = ev
     ? allIndicadores
         .filter((i) => i.ev === ev.id)
-        .sort((a, b) => a.cumpl - b.cumpl)
+        .sort((a, b) => b.cumpl - a.cumpl)
         .map((i) => ({ n: i.n, nombre: i.nombre, valor: i.cumpl }))
-    : indicadorAverages(evs).sort((a, b) => a.valor - b.valor);
+    : indicadorAverages(evs).sort((a, b) => b.valor - a.valor);
 
   return (
     <aside
-      className="panel rise-in sticky top-[168px] flex flex-col overflow-hidden"
+      className="panel rise-in sticky top-42 flex flex-col overflow-hidden"
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="graphite-gradient px-5 py-4 text-background">
@@ -83,7 +83,7 @@ export function EvaluatorPanel({
         ))}
       </div>
 
-      <div className="max-h-[420px] overflow-y-auto p-5 text-sm leading-relaxed">
+      <div className="max-h-105 overflow-y-auto p-5 text-sm leading-relaxed">
         {tab === "resumen" && (
           <div key="resumen" className="rise-in">
             {ev ? (

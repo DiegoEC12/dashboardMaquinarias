@@ -23,6 +23,9 @@ function IndicadoresPage() {
   const { filters, dataVersion } = useFilters();
   const [selectedIndicator, setSelectedIndicator] = useState<number | null>(null);
   const [selectedLocal, setSelectedLocal] = useState<string | null>(null);
+  const [sortMode, setSortMode] = useState<"mayor" | "menor" | "brecha-pos" | "brecha-neg">(
+    "mayor",
+  );
 
   void dataVersion;
   const scopes = getScopes(filters);
@@ -81,11 +84,11 @@ function IndicadoresPage() {
       )
       .map((question) => ({ ...question, score: (question.nota ?? 0) * 100 }));
 
+    const allQuestions = [...questionRows].sort((a, b) => b.score - a.score);
     return {
       local,
       overall: (localScores.get(local.id) ?? 0) * 100,
-      weakest: [...questionRows].sort((a, b) => a.score - b.score).slice(0, 3),
-      strongest: [...questionRows].sort((a, b) => b.score - a.score).slice(0, 3),
+      questions: allQuestions,
     };
   }, [selectedIndicator, selectedLocal, locales, localScores]);
 
@@ -112,6 +115,18 @@ function IndicadoresPage() {
                 <p className="mt-1 text-xs text-muted-foreground">
                   Selecciona un indicador para revisar sus locales y notas.
                 </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  value={sortMode}
+                  onChange={(e) => setSortMode(e.target.value as any)}
+                  className="transition-ui h-8 rounded-md border border-input bg-card px-2 text-[13px] font-medium shadow-xs outline-none focus:border-ring"
+                >
+                  <option value="mayor">Mayor puntaje</option>
+                  <option value="menor">Menor puntaje</option>
+                  <option value="brecha-pos">Mayor brecha positiva</option>
+                  <option value="brecha-neg">Mayor brecha negativa</option>
+                </select>
               </div>
             </div>
 
@@ -167,9 +182,31 @@ function IndicadoresPage() {
                         Nota del indicador por local · haz clic para ver el resumen
                       </div>
                       <ul className="mt-3 grid gap-2 md:grid-cols-2">
-                        {locales.map((local) => {
-                          const percentage = (localScores.get(local.id) ?? 0) * 100;
-                          return (
+                        {(() => {
+                          const networkAvg = indicator.valor * 100;
+                          const items = locales.map((local) => ({
+                            id: local.id,
+                            nombre: local.nombre,
+                            percentage: (localScores.get(local.id) ?? 0) * 100,
+                            brecha: ((localScores.get(local.id) ?? 0) * 100) - networkAvg,
+                          }));
+
+                          items.sort((a, b) => {
+                            switch (sortMode) {
+                              case "mayor":
+                                return b.percentage - a.percentage;
+                              case "menor":
+                                return a.percentage - b.percentage;
+                              case "brecha-pos":
+                                return b.brecha - a.brecha;
+                              case "brecha-neg":
+                                return a.brecha - b.brecha;
+                            }
+                          });
+
+                          const visible = items.slice(0, 10);
+
+                          return visible.map((local) => (
                             <li key={local.id}>
                               <button
                                 type="button"
@@ -189,23 +226,23 @@ function IndicadoresPage() {
                                   <span
                                     className={cn(
                                       "block h-full rounded-full",
-                                      getBarClass(percentage),
+                                      getBarClass(local.percentage),
                                     )}
-                                    style={{ width: `${percentage}%` }}
+                                    style={{ width: `${local.percentage}%` }}
                                   />
                                 </span>
                                 <span
                                   className={cn(
                                     "w-10 shrink-0 text-right font-semibold tabular-nums",
-                                    getTextClass(percentage),
+                                    getTextClass(local.percentage),
                                   )}
                                 >
-                                  {Math.round(percentage)}%
+                                  {Math.round(local.percentage)}%
                                 </span>
                               </button>
                             </li>
-                          );
-                        })}
+                          ));
+                        })()}
                       </ul>
                       <div className="mt-4 text-xs text-muted-foreground">
                         Promedio de la red: {(indicator.valor * 100).toFixed(0)}%
@@ -252,8 +289,10 @@ function IndicadoresPage() {
                     {Math.round(sidebarDetail.overall)}%
                   </div>
                 </div>
-                <QuestionSummary title="Puntos por mejorar" questions={sidebarDetail.weakest} />
-                <QuestionSummary title="Fortalezas" questions={sidebarDetail.strongest} />
+                <QuestionSummary
+                  title="Preguntas (mejor → peor)"
+                  questions={sidebarDetail.questions.map((q) => ({ q: q.q, score: q.score }))}
+                />
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
