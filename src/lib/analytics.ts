@@ -55,6 +55,26 @@ export const indicadorCatalogo = Array.from(
   new Map(indicadores.map((i) => [i.n, { n: i.n, nombre: i.nombre, peso: i.peso }])).values(),
 ).sort((a, b) => a.n - b.n);
 
+function indicatorKey(nombre: string) {
+  return nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/maquinarias$/i, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function indicadorCatalogoPara(evs: Evaluacion[]) {
+  const ids = new Set(evs.map((evaluation) => evaluation.id));
+  return Array.from(
+    new Map(
+      indicadores
+        .filter((indicator) => ids.has(indicator.ev))
+        .map((indicator) => [indicatorKey(indicator.nombre), indicator]),
+    ).values(),
+  ).sort((a, b) => a.n - b.n);
+}
+
 export const labelOf = (e: Evaluacion) => `${title(e.concesionaria)} ${title(e.marca)}`;
 
 function normalizeKeyPart(value: string) {
@@ -114,6 +134,9 @@ export function scoreOf(ev: Evaluacion, indicadorFiltro: string) {
 export const avg = (values: number[]) =>
   values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
 
+const avgNullable = (values: number[]) =>
+  values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
+
 export const pct = (value: number) => `${(value * 100).toFixed(1)}%`;
 
 export type Tone = "alto" | "medio" | "critico";
@@ -163,17 +186,23 @@ export function benchmark(evs: Evaluacion[]) {
 export function brechaPorIndicador(evs: Evaluacion[]) {
   const propias = new Set(evs.filter((e) => e.concesionaria === MARCA_PROPIA).map((e) => e.id));
   const otras = new Set(evs.filter((e) => e.concesionaria !== MARCA_PROPIA).map((e) => e.id));
-  return indicadorCatalogo
+  const catalogo = indicadorCatalogoPara(evs);
+  return catalogo
     .map((c) => {
-      const own = avg(
-        indicadores.filter((i) => propias.has(i.ev) && i.n === c.n).map((i) => i.cumpl),
+      const key = indicatorKey(c.nombre);
+      const own = avgNullable(
+        indicadores
+          .filter((i) => propias.has(i.ev) && indicatorKey(i.nombre) === key)
+          .map((i) => i.cumpl),
       );
-      const rival = avg(
-        indicadores.filter((i) => otras.has(i.ev) && i.n === c.n).map((i) => i.cumpl),
+      const rival = avgNullable(
+        indicadores
+          .filter((i) => otras.has(i.ev) && indicatorKey(i.nombre) === key)
+          .map((i) => i.cumpl),
       );
-      return { ...c, own, rival, gap: own - rival };
+      return { ...c, own, rival, gap: own !== null && rival !== null ? own - rival : null };
     })
-    .sort((a, b) => a.own - b.own);
+    .sort((a, b) => (a.own ?? Infinity) - (b.own ?? Infinity));
 }
 
 export type PreguntaAgg = {

@@ -36,7 +36,11 @@ export function BenchmarkPanel({ evs, delay = 0 }: { evs: Evaluacion[]; delay?: 
             positive ? "bg-good/10 text-good" : "bg-bad/10 text-bad",
           )}
         >
-          {positive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
+          {positive ? (
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          ) : (
+            <ArrowDownRight className="h-3.5 w-3.5" />
+          )}
           {`${positive ? "+" : ""}${(b.brecha * 100).toFixed(1)} pp`}
         </span>
       }
@@ -48,9 +52,16 @@ export function BenchmarkPanel({ evs, delay = 0 }: { evs: Evaluacion[]; delay?: 
         ].map((row, i) => (
           <div key={row.name}>
             <div className="mb-1.5 flex items-baseline justify-between gap-2">
-              <span className={cn("text-sm", row.own ? "font-bold" : "font-medium text-muted-foreground")}>
+              <span
+                className={cn(
+                  "text-sm",
+                  row.own ? "font-bold" : "font-medium text-muted-foreground",
+                )}
+              >
                 {row.name}
-                <span className="ml-2 text-xs font-normal text-muted-foreground">{row.n} visitas</span>
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  {row.n} visitas
+                </span>
               </span>
               <span
                 className={cn(
@@ -82,19 +93,28 @@ export function BenchmarkPanel({ evs, delay = 0 }: { evs: Evaluacion[]; delay?: 
               <li key={g.n} className="rise-in" style={{ animationDelay: `${i * 40}ms` }}>
                 <div className="flex items-center justify-between gap-3">
                   <span className="min-w-0 flex-1 truncate text-sm">{g.nombre}</span>
-                  <span className="font-display text-sm font-bold" style={{ color: toneColor[toneOf(g.own)] }}>
-                    {pct(g.own)}
+                  <span
+                    className="font-display text-sm font-bold"
+                    style={{ color: g.own === null ? undefined : toneColor[toneOf(g.own)] }}
+                  >
+                    {g.own === null ? "Sin datos" : pct(g.own)}
                   </span>
                   <span
                     className={cn(
                       "w-16 shrink-0 text-right text-xs font-semibold",
-                      g.gap >= 0 ? "text-good" : "text-bad",
+                      g.gap === null
+                        ? "text-muted-foreground"
+                        : g.gap >= 0
+                          ? "text-good"
+                          : "text-bad",
                     )}
                   >
-                    {`${g.gap >= 0 ? "+" : ""}${(g.gap * 100).toFixed(0)} pp`}
+                    {g.gap === null
+                      ? "Sin datos"
+                      : `${g.gap >= 0 ? "+" : ""}${(g.gap * 100).toFixed(0)} pp`}
                   </span>
                 </div>
-                <ScoreBar value={g.own} className="mt-1.5 h-1.5" delay={i * 60} />
+                <ScoreBar value={g.own ?? 0} className="mt-1.5 h-1.5" delay={i * 60} />
               </li>
             ))}
           </ul>
@@ -105,7 +125,9 @@ export function BenchmarkPanel({ evs, delay = 0 }: { evs: Evaluacion[]; delay?: 
               className="mt-3 flex items-center gap-1 text-xs font-semibold text-primary transition-colors hover:text-primary/80"
             >
               {expanded ? "Ver menos" : `Ver los ${gaps.length} indicadores`}
-              <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", expanded && "rotate-90")} />
+              <ChevronRight
+                className={cn("h-3.5 w-3.5 transition-transform", expanded && "rotate-90")}
+              />
             </button>
           )}
         </div>
@@ -172,7 +194,11 @@ export function RankingPanel({
     .slice(0, 5);
 
   return (
-    <SectionCard title="Ranking de locales" subtitle="Clic para ver el detalle del local" delay={delay}>
+    <SectionCard
+      title="Ranking de locales"
+      subtitle="Clic para ver el detalle del local"
+      delay={delay}
+    >
       <ul className="space-y-1">
         {rows.map((r, i) => (
           <li key={r.representativeId}>
@@ -211,7 +237,9 @@ export function RankingPanel({
             </button>
           </li>
         ))}
-        {rows.length === 0 && <li className="py-6 text-center text-sm text-muted-foreground">Sin resultados</li>}
+        {rows.length === 0 && (
+          <li className="py-6 text-center text-sm text-muted-foreground">Sin resultados</li>
+        )}
       </ul>
     </SectionCard>
   );
