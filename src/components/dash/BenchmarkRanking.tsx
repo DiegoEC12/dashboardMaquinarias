@@ -90,7 +90,11 @@ export function BenchmarkPanel({ evs, delay = 0 }: { evs: Evaluacion[]; delay?: 
           </p>
           <ul className="space-y-2.5">
             {visibles.map((g, i) => (
-              <li key={g.n} className="rise-in" style={{ animationDelay: `${i * 40}ms` }}>
+              <li
+                key={`${g.n}-${g.nombre}`}
+                className="rise-in"
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
                 <div className="flex items-center justify-between gap-3">
                   <span className="min-w-0 flex-1 truncate text-sm">{g.nombre}</span>
                   <span
