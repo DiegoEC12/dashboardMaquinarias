@@ -4,11 +4,12 @@ import {
   Scale,
   Building2,
   ListChecks,
-  FileSearch,
   PanelLeftClose,
   PanelLeftOpen,
   Menu,
   X,
+  LogOut,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import logoAsset from "@/assets/logo-maquinarias.png.asset.json";
@@ -82,6 +83,14 @@ function Brand({ collapsed }: { collapsed: boolean }) {
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    setTimeout(() => {
+      window.location.href = "https://factor-iq.com/pages/servicio_nube.html";
+    }, 1000);
+  };
 
   return (
     <>
@@ -96,7 +105,29 @@ export function AppSidebar() {
         <div className="mt-2 flex-1">
           <NavLinks collapsed={collapsed} />
         </div>
-        <div className="border-t border-sidebar-border p-3">
+        <div className="border-t border-sidebar-border p-3 space-y-1">
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            title={collapsed ? (isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión") : undefined}
+            className={cn(
+              "transition-ui flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-destructive/85 hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-70",
+              collapsed && "justify-center px-0",
+            )}
+            aria-label="Cerrar sesión"
+          >
+            {isLoggingOut ? (
+              <Loader2 className="h-4 w-4 animate-spin text-destructive shrink-0" />
+            ) : (
+              <LogOut className="h-4 w-4 shrink-0" />
+            )}
+            {!collapsed && (
+              <span className="truncate">
+                {isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión"}
+              </span>
+            )}
+          </button>
+
           <button
             onClick={() => setCollapsed((c) => !c)}
             className="transition-ui flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -137,7 +168,7 @@ export function AppSidebar() {
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
             className="absolute inset-0 bg-black/50"
-            onClick={() => setMobileOpen(false)}
+            onClick={() => !isLoggingOut && setMobileOpen(false)}
           />
           <aside className="absolute top-0 left-0 flex h-full w-64 flex-col bg-sidebar">
             <div className="flex items-start justify-between pr-2">
@@ -150,7 +181,26 @@ export function AppSidebar() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <NavLinks collapsed={false} onNavigate={() => setMobileOpen(false)} />
+            <div className="flex-1">
+              <NavLinks collapsed={false} onNavigate={() => setMobileOpen(false)} />
+            </div>
+            <div className="border-t border-sidebar-border p-3">
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="transition-ui flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-destructive/85 hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-70"
+                aria-label="Cerrar sesión"
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-destructive shrink-0" />
+                ) : (
+                  <LogOut className="h-4 w-4 shrink-0" />
+                )}
+                <span>
+                  {isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión"}
+                </span>
+              </button>
+            </div>
           </aside>
         </div>
       )}

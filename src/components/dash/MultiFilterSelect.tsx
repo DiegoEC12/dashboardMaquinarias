@@ -39,7 +39,7 @@ export function MultiFilterSelect({
       ? (values?.[0]
           ? (options.find((option) => option.value === values[0])?.label ?? values[0])
           : (options[0]?.label ?? ""))
-    : values.length === 0
+    : !values || values.length === 0
       ? "Ninguna"
     : values.length === 1
       ? (options.find((option) => option.value === values[0])?.label ?? values[0])
@@ -113,7 +113,7 @@ export function MultiFilterSelect({
               ? (values ?? []).includes(option.value)
               : singleOrAll
                 ? (values ?? []).includes(option.value)
-                : allSelected || values.includes(option.value);
+                : allSelected || (values ?? []).includes(option.value);
             const disabled = lockedBySingleOrAllMode !== null && !checked;
             if (singleSelect) {
               return (

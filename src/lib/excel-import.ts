@@ -19,6 +19,7 @@ import { normalizeTipoEvaluacion } from "@/lib/tipo-evaluacion";
 import bundledRaw from "@/data/mystery-shopping-imported.json";
 
 const IMPORT_STORAGE_KEYS = [
+  "dashboard-maquinarias.imported-payload.v3",
   "dashboard-maquinarias.imported-payload.v2",
   "dashboard-maquinarias.imported-payload.v1",
 ] as const;
@@ -112,35 +113,40 @@ function loadBundledPayload(): ImportedPayload {
   };
 }
 
+export function hydrateImportedDataFromStorage(): boolean {
+  if (startupHydrationDone) return true;
+  const persistedPayload = loadPersistedImportedPayload();
+  if (!persistedPayload) {
+    applyImportedPayload(loadBundledPayload());
+    startupHydrationDone = true;
+    return true;
+  }
+  applyImportedPayload(persistedPayload);
+  startupHydrationDone = true;
+  return true;
+}
+
 export function applyImportedPayload(payload: ImportedPayload) {
   replaceDataset(payload.dataset);
   syncAnalyticsData(payload.analytics);
 }
 
-export function hydrateImportedDataFromStorage(): boolean {
-  if (startupHydrationDone) {
-    return dataset.evaluations.length > 0;
-  }
-  startupHydrationDone = true;
-
-  const persistedPayload = loadPersistedImportedPayload();
-  if (persistedPayload) {
-    applyImportedPayload(persistedPayload);
-    return true;
-  }
-
-  applyImportedPayload(loadBundledPayload());
-  return true;
-}
-
 const SHEET_ALIASES = {
-  evaluations: ["evaluaciones", "evaluations", "evaluation", "visitas"],
+  evaluations: [
+    "evaluaciones",
+    "evaluations",
+    "visitas",
+    "mystery",
+    "evaluacion",
+    "datos",
+    "base",
+  ],
   indicators: ["indicadores", "indicators", "indicatorresults", "resultados"],
-  questions: ["preguntas", "questions", "respuestas", "questionresponses"],
-};
+  questions: ["preguntas", "questions", "respuestas", "items", "checklist"],
+} as const;
 
-function key(value: unknown) {
-  return String(value ?? "")
+function key(value: string) {
+  return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
@@ -161,17 +167,10 @@ function number(value: unknown, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function sheetRows(workbook: XLSX.WorkBook, aliases: string[]) {
+function sheetRows(workbook: XLSX.WorkBook, aliases: readonly string[]) {
   const sheetName = workbook.SheetNames.find((name) => aliases.includes(key(name)));
   const sheet = sheetName ? workbook.Sheets[sheetName] : undefined;
   return sheet ? XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: null }) : [];
-}
-
-function indicatorId(value: unknown) {
-  const raw = text(value);
-  if (raw.startsWith("IND_")) return raw;
-  const order = Number(raw);
-  return Number.isFinite(order) ? `IND_${String(order).padStart(2, "0")}` : raw;
 }
 
 function buildDatasetFromRows(
@@ -180,13 +179,6 @@ function buildDatasetFromRows(
   questionRows: PreguntaRow[],
   source = "excel-import",
 ): Dataset {
-  const catalog = Array.from(new Map(indicatorRows.map((row) => [row.n, row])).values());
-  const normalizedIndicators: Indicator[] = catalog.map((row) => ({
-    id: indicatorId(row.n),
-    nombre: row.nombre,
-    peso: row.peso,
-    orden: row.n,
-  }));
   const normalizedEvaluations: Evaluation[] = evaluations.map((evaluation) => {
     const enterpriseHint = `${evaluation.__tipoEmpresaRaw ?? ""} ${evaluation.concesionaria}`
       .normalize("NFD")
@@ -208,12 +200,43 @@ function buildDatasetFromRows(
       tipoEmpresa: isOwn ? "MAQUINARIAS" : "COMPETENCIA",
     };
   });
-  const normalizedResults: IndicatorResult[] = indicatorRows.map((row) => ({
-    idEvaluacion: row.ev,
-    idIndicador: indicatorId(row.n),
-    resultado: row.cumpl,
-    peso: row.peso,
-  }));
+
+  const evalTypeMap = new Map<string, string>();
+  for (const evaluation of normalizedEvaluations) {
+    if (evaluation.id) {
+      evalTypeMap.set(evaluation.id, evaluation.tipoEvaluacion);
+    }
+  }
+
+  const indicatorsMap = new Map<string, Indicator>();
+  const normalizedResults: IndicatorResult[] = [];
+
+  for (const row of indicatorRows) {
+    const evType = row.ev ? evalTypeMap.get(row.ev) : undefined;
+    const isCall = evType?.toLowerCase().includes("call");
+    const id = isCall
+      ? `IND_CAL_${String(row.n).padStart(2, "0")}`
+      : `IND_${String(row.n).padStart(2, "0")}`;
+
+    if (!indicatorsMap.has(id)) {
+      indicatorsMap.set(id, {
+        id,
+        nombre: row.nombre,
+        peso: row.peso,
+        orden: row.n,
+      });
+    }
+
+    normalizedResults.push({
+      idEvaluacion: row.ev,
+      idIndicador: id,
+      resultado: row.cumpl,
+      peso: row.peso,
+    });
+  }
+
+  const normalizedIndicators = Array.from(indicatorsMap.values()).sort((a, b) => a.orden - b.orden);
+
   const normalizedQuestions: QuestionResponse[] = questionRows.map((row, index) => ({
     idEvaluacion: row.ev,
     idPregunta: `Q_${index + 1}`,

@@ -84,6 +84,8 @@ Prueba realizada: servidor dev iniciado en http://localhost:8081/ — verificar 
 - [x] Procesado `Base_Mystery_Shopping_Consolidada (8).xlsx`: 42 evaluaciones, 434 filas de indicadores y 2494 preguntas.
 - [X] Agregada la acción para restaurar el dataset original y quitar los datos importados de la sesión.
 - [X] Validaciones ejecutadas: `npx tsc --noEmit`, `npx prettier --check`, `npm run data:excel` y `npm run build`.
+- [X] Corrección en módulo de indicadores: discriminación única de indicadores por tipo de evaluación (`Call Center` 7 indicadores vs `Ventas/Seminuevos` 12 indicadores) evitando colisión y desfase de nombres y pesos.
+- [X] Agregado botón de "Cerrar sesión" en la barra de navegación lateral (`AppSidebar`) con feedback "Cerrando sesión..." y redirección a `https://factor-iq.com/pages/servicio_nube.html`.
 - [ ] Revisar visualmente los datos importados en cada ruta y definir el proveedor de base de datos.
 
 Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproducible de desarrollo y encapsular después la lectura de JSON, Excel y API detrás de un único proveedor de datos. Así la UI no dependerá del formato de origen y será posible auditar cada importación.

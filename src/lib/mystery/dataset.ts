@@ -67,6 +67,12 @@ function normalize(rawData: LegacyRawDataset | Dataset): Dataset {
         : "COMPETENCIA",
   }));
 
+  // Construir mapa de evaluaciones para conocer su tipoEvaluacion
+  const evalTypeMap = new Map<string, string>();
+  for (const e of evaluations) {
+    if (e.id) evalTypeMap.set(e.id, e.tipoEvaluacion);
+  }
+
   // Construir indicadores únicos y resultados desde `indicadores` (spanish)
   const rawInds = (legacyData.indicadores ?? legacyData.indicators ?? []) as LegacyIndicatorRow[];
   const indicatorsMap = new Map<string, Indicator>();
@@ -87,13 +93,18 @@ function normalize(rawData: LegacyRawDataset | Dataset): Dataset {
           : null;
     const nRaw = ri.n ?? ri.orden ?? null;
     const n = typeof nRaw === "number" ? nRaw : Number(nRaw ?? NaN);
-    const idIndicador = n
-      ? `IND_${String(n).padStart(2, "0")}`
-      : typeof ri.id === "string"
+    const evType = evId ? evalTypeMap.get(evId) : undefined;
+    const isCall = evType?.toLowerCase().includes("call");
+    const prefix = isCall ? "IND_CAL" : "IND";
+
+    const idIndicador =
+      typeof ri.id === "string"
         ? ri.id
         : typeof ri.idIndicador === "string"
           ? ri.idIndicador
-          : `IND_${Math.random().toString(36).slice(2, 7)}`;
+          : n
+            ? `${prefix}_${String(n).padStart(2, "0")}`
+            : `IND_${Math.random().toString(36).slice(2, 7)}`;
     const resultado =
       typeof ri.cumpl === "number"
         ? ri.cumpl

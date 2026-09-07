@@ -29,6 +29,6 @@ export function coerceSingleTipoEvaluacion(values: string[] | null, fallback = "
   const cleaned = values
     .map((item) => normalizeTipoEvaluacion(item))
     .filter((item) => item.trim().length > 0);
-  if (!cleaned.length) return [normalizeTipoEvaluacion(fallback)];
+  if (!cleaned.length || !cleaned[0]) return [normalizeTipoEvaluacion(fallback)];
   return [cleaned[0]];
 }

@@ -38,13 +38,15 @@ export function SharedFilterBar() {
     if (patch.ubicacion !== undefined) setFilter("ubicacion", patch.ubicacion);
     if (patch.tipoEvaluacion !== undefined) setFilter("tipoEvaluacion", patch.tipoEvaluacion);
     if (patch.indicador !== undefined) {
-      if (patch.indicador !== undefined) setFilter("indicador", patch.indicador);
+      setFilter("indicador", patch.indicador);
       if (!patch.indicador || patch.indicador.length !== 1) clearIndicador();
       else {
         const value = patch.indicador[0];
-        const n = Number(value);
-        if (Number.isFinite(n)) openIndicador(`IND_${String(n).padStart(2, "0")}`);
-        else openIndicador(value);
+        if (value) {
+          const n = Number(value);
+          if (Number.isFinite(n)) openIndicador(`IND_${String(n).padStart(2, "0")}`);
+          else openIndicador(value);
+        }
       }
     }
   };

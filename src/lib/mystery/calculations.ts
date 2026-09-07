@@ -64,7 +64,8 @@ export function filterEvaluations(evals: Evaluation[], f: GlobalFilters): Evalua
             selectedIndicators.some(
               (indicator) =>
                 indicator === result.idIndicador ||
-                `IND_${String(Number(indicator)).padStart(2, "0")}` === result.idIndicador,
+                `IND_${String(Number(indicator)).padStart(2, "0")}` === result.idIndicador ||
+                `IND_CAL_${String(Number(indicator)).padStart(2, "0")}` === result.idIndicador,
             ),
         )),
   );

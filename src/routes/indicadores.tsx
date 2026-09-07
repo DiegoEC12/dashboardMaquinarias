@@ -21,7 +21,7 @@ export const Route = createFileRoute("/indicadores")({
 
 function IndicadoresPage() {
   const { filters, dataVersion } = useFilters();
-  const [selectedIndicator, setSelectedIndicator] = useState<number | null>(null);
+  const [selectedIndicator, setSelectedIndicator] = useState<string | null>(null);
   const [selectedLocal, setSelectedLocal] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<"mayor" | "menor" | "brecha-pos" | "brecha-neg">(
     "mayor",
@@ -59,7 +59,7 @@ function IndicadoresPage() {
         local.id,
         selectedIndicator === null
           ? null
-          : indicatorScore(local.evIds, `IND_${String(selectedIndicator).padStart(2, "0")}`),
+          : indicatorScore(local.evIds, selectedIndicator),
       );
     }
     return scores;
@@ -75,10 +75,13 @@ function IndicadoresPage() {
     const local = locales.find((item) => item.id === selectedLocal);
     if (!local) return null;
 
+    const indObj = indicatorList.find((i) => i.id === selectedIndicator);
+    const indOrder = indObj?.orden;
+
     const questionRows = preguntas
       .filter(
         (question) =>
-          question.ind === selectedIndicator &&
+          (question.ind === indOrder || question.indicador === indObj?.nombre) &&
           local.evIds.includes(question.ev) &&
           question.nota !== null,
       )
@@ -90,13 +93,13 @@ function IndicadoresPage() {
       overall: (localScores.get(local.id) ?? 0) * 100,
       questions: allQuestions,
     };
-  }, [selectedIndicator, selectedLocal, locales, localScores]);
+  }, [selectedIndicator, selectedLocal, locales, localScores, indicatorList]);
 
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Indicadores"
-        description="Explora los 12 indicadores y su desempeño por local."
+        description={`Explora los ${indicatorList.length} indicadores y su desempeño por local.`}
       />
       <CompactFilterControls />
 
@@ -138,14 +141,14 @@ function IndicadoresPage() {
               <Accordion type="single" collapsible className="mt-5">
                 {indicatorList.map((indicator) => (
                   <AccordionItem
-                    key={indicator.n}
-                    value={String(indicator.n)}
+                    key={indicator.id}
+                    value={indicator.id}
                     className="border-border"
                   >
                     <AccordionTrigger
                       className="gap-4 py-4 hover:no-underline"
                       onClick={() => {
-                        setSelectedIndicator(indicator.n);
+                        setSelectedIndicator(indicator.id);
                         setSelectedLocal(null);
                       }}
                     >
@@ -211,12 +214,12 @@ function IndicadoresPage() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  setSelectedIndicator(indicator.n);
+                                  setSelectedIndicator(indicator.id);
                                   setSelectedLocal(local.id);
                                 }}
                                 className={cn(
                                   "flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                                  selectedLocal === local.id && selectedIndicator === indicator.n
+                                  selectedLocal === local.id && selectedIndicator === indicator.id
                                     ? "bg-accent"
                                     : "border-border hover:bg-muted/60",
                                 )}
@@ -275,7 +278,7 @@ function IndicadoresPage() {
                   <h3 className="text-sm font-semibold">{sidebarDetail.local.nombre}</h3>
                   <div className="mt-1 text-xs text-muted-foreground">
                     Indicador:{" "}
-                    {indicatorList.find((indicator) => indicator.n === selectedIndicator)?.nombre}
+                    {indicatorList.find((indicator) => indicator.id === selectedIndicator)?.nombre}
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
@@ -332,5 +335,3 @@ function QuestionSummary({ title, questions }: { title: string; questions: Summa
     </div>
   );
 }
-
-export default IndicadoresPage;

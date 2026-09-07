@@ -164,10 +164,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       .filter((indicator) => availableIndicatorIds.has(indicator.id))
       .sort((a, b) => a.orden - b.orden)
       .map((indicator) => ({
-        value:
-          Number.isFinite(indicator.orden) && indicator.orden > 0
-            ? String(indicator.orden)
-            : indicator.id,
+        value: indicator.id,
         label: indicator.nombre,
       }));
 
