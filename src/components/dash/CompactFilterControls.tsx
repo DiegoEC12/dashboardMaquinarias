@@ -48,17 +48,11 @@ export function CompactFilterControls() {
             values={filters.indicador}
             options={options.indicadores}
             onChange={(values) => {
-              // null = "Todas", [] = user unchecked all, non-empty = specific selection
-              if (!values || values.length === 0) {
-                setFilter("indicador", null);
+              setFilter("indicador", values);
+              if (!values || values.length !== 1) {
                 clearIndicador();
               } else {
-                setFilter("indicador", values);
-                if (values.length === 1) {
-                  openIndicador(values[0]);
-                } else {
-                  clearIndicador();
-                }
+                openIndicador(values[0]);
               }
             }}
           />

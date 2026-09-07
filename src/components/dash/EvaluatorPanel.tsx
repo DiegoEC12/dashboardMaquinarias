@@ -16,21 +16,32 @@ import {
 export function EvaluatorPanel({
   evs,
   selected,
+  filtrosIndicador,
   delay = 0,
 }: {
   evs: Evaluacion[];
   selected: Evaluacion | null;
+  filtrosIndicador?: string[] | null;
   delay?: number;
 }) {
   const [tab, setTab] = useState<"resumen" | "recomendaciones" | "indicadores">("resumen");
   const ev = selected;
 
-  const rows = ev
+  let rows = ev
     ? allIndicadores
         .filter((i) => i.ev === ev.id)
         .sort((a, b) => b.cumpl - a.cumpl)
         .map((i) => ({ n: i.n, nombre: i.nombre, valor: i.cumpl }))
     : indicadorAverages(evs).sort((a, b) => b.valor - a.valor);
+
+  if (filtrosIndicador?.length) {
+    const selectedNums = new Set(
+      filtrosIndicador
+        .map((id) => { const m = id.match(/(\d+)$/); return m ? Number(m[1]) : NaN; })
+        .filter((n) => Number.isFinite(n))
+    );
+    rows = rows.filter((r) => selectedNums.has(r.n));
+  }
 
   return (
     <aside

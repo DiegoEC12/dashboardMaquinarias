@@ -193,11 +193,11 @@ function Dashboard() {
               }}
               delay={180}
             />
-            <StrengthsOpportunities rows={indicadorAverages(evs)} delay={240} />
+            <StrengthsOpportunities rows={indicadorRows} delay={240} />
           </div>
 
           <div className="lg:col-span-1">
-            <EvaluatorPanel evs={evs} selected={selected} delay={160} />
+            <EvaluatorPanel evs={evs} selected={selected} filtrosIndicador={filters.indicador} delay={160} />
           </div>
         </div>
 
