@@ -37,8 +37,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const { dataVersion } = useFilters();
-  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const { filters, setFilter, clearFilters, dataVersion } = useFilters();
+  // Use global filters from context
+// Duplicate line removed
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const evs = useMemo(() => filterEvaluaciones(filters), [filters, dataVersion]);
@@ -59,9 +60,14 @@ function Dashboard() {
 
   const indicadorRows = useMemo(() => {
     const rows = indicadorAverages(evs);
-    return filters.indicador?.length
-      ? rows.filter((r) => filters.indicador?.includes(String(r.n)))
-      : rows;
+    if (!filters.indicador?.length) return rows;
+    // Extract trailing number from IDs like IND_01, IND_CAL_03
+    const selectedNums = new Set(
+      filters.indicador
+        .map((id) => { const m = id.match(/(\d+)$/); return m ? Number(m[1]) : NaN; })
+        .filter((n) => Number.isFinite(n))
+    );
+    return rows.filter((r) => selectedNums.has(r.n));
   }, [evs, filters.indicador]);
 
   const heatmapLocals = useMemo(() => {
@@ -139,7 +145,11 @@ function Dashboard() {
     ((filters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas" ? 1 : 0);
 
   const handleChange = (patch: Partial<Filters>) => {
-    setFilters((prev) => ({ ...prev, ...patch }));
+    // Apply each filter key using context's setFilter
+    for (const key in patch) {
+      const value = patch[key as keyof Filters];
+      setFilter(key as keyof Filters, value);
+    }
     setSelectedId(null);
   };
 
@@ -149,7 +159,7 @@ function Dashboard() {
         filters={filters}
         onChange={handleChange}
         onReset={() => {
-          setFilters(EMPTY_FILTERS);
+          clearFilters();
           setSelectedId(null);
         }}
         activeCount={activeCount}

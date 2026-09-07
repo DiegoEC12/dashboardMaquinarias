@@ -127,8 +127,20 @@ export function filterEvaluaciones(f: Filters) {
 /** Score of one evaluation, respecting an optional indicator focus. */
 export function scoreOf(ev: Evaluacion, indicadorFiltro: string) {
   if (!indicadorFiltro || indicadorFiltro === "all") return ev.puntaje;
-  const row = indicadores.find((i) => i.ev === ev.id && String(i.n) === indicadorFiltro);
-  return row ? row.cumpl : 0;
+
+  // Try direct match by indicator number
+  // Handles: "IND_01" → 1, "IND_CAL_03" → 3, plain "5" → 5
+  const numMatch = indicadorFiltro.match(/(\d+)$/);
+  if (numMatch) {
+    const n = Number(numMatch[1]);
+    if (Number.isFinite(n)) {
+      const row = indicadores.find((i) => i.ev === ev.id && i.n === n);
+      if (row) return row.cumpl;
+    }
+  }
+
+  // Fallback: match by indicator name key (for edge cases)
+  return 0;
 }
 
 export const avg = (values: number[]) =>

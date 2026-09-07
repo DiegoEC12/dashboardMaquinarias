@@ -4,11 +4,6 @@ import { useMemo } from "react";
 import { useFilters } from "@/lib/mystery/filter-context";
 import { MultiFilterSelect } from "./MultiFilterSelect";
 
-function indicatorSelectionToId(value: string): string {
-  const n = Number(value);
-  return Number.isFinite(n) ? `IND_${String(n).padStart(2, "0")}` : value;
-}
-
 export function CompactFilterControls() {
   const {
     filters,
@@ -53,10 +48,18 @@ export function CompactFilterControls() {
             values={filters.indicador}
             options={options.indicadores}
             onChange={(values) => {
-              setFilter("indicador", values);
-              const first = values?.[0];
-              if (values?.length === 1 && first) openIndicador(indicatorSelectionToId(first));
-              else clearIndicador();
+              // null = "Todas", [] = user unchecked all, non-empty = specific selection
+              if (!values || values.length === 0) {
+                setFilter("indicador", null);
+                clearIndicador();
+              } else {
+                setFilter("indicador", values);
+                if (values.length === 1) {
+                  openIndicador(values[0]);
+                } else {
+                  clearIndicador();
+                }
+              }
             }}
           />
           <MultiFilterSelect

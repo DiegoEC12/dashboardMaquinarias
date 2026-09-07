@@ -69,7 +69,8 @@ export function MultiFilterSelect({
     const next = checked
       ? [...current.filter((item) => item !== value), value]
       : current.filter((item) => item !== value);
-    onChange(next.length === options.length ? null : next);
+    // If all are selected again => null (= "Todas"), otherwise keep the array (even if empty)
+    onChange(next.length === options.length ? null : next.length === 0 ? [] : next);
   };
 
   const lockedBySingleOrAllMode =

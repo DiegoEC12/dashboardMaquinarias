@@ -43,10 +43,6 @@ interface FilterContextValue {
 
 const FilterContext = createContext<FilterContextValue | null>(null);
 
-function indicatorSelectionToId(value: string): string {
-  const n = Number(value);
-  return Number.isFinite(n) ? `IND_${String(n).padStart(2, "0")}` : value;
-}
 
 export function FilterProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<GlobalFilters>(EMPTY_FILTERS);
@@ -109,10 +105,12 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       prune("ubicacion");
       prune("tipoEvaluacion");
 
-      if (next.indicador !== null) {
-        next.indicador = next.indicador.filter((value) =>
-          allowedIndicatorIds.has(indicatorSelectionToId(value)),
+      if (next.indicador !== null && next.indicador.length > 0) {
+        // Values are already proper indicator IDs (IND_01, IND_CAL_01, etc.)
+        const filtered = next.indicador.filter((value) =>
+          allowedIndicatorIds.has(value)
         );
+        next.indicador = filtered.length ? filtered : null;
       }
 
       return next;

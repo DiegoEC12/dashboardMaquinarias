@@ -158,7 +158,7 @@
         {
             "ev": "EV_DA67A829EECA",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.0
         },
@@ -242,7 +242,7 @@
         {
             "ev": "EV_32F32CC86AD6",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.25
         },
@@ -326,7 +326,7 @@
         {
             "ev": "EV_595466383527",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.25
         },
@@ -410,7 +410,7 @@
         {
             "ev": "EV_19A457287833",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.8333
         },
@@ -494,7 +494,7 @@
         {
             "ev": "EV_0944BA00474B",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.25
         },
@@ -578,7 +578,7 @@
         {
             "ev": "EV_C35B0D9F2C2D",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.5833
         },
@@ -662,7 +662,7 @@
         {
             "ev": "EV_61FAB63C2835",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.25
         },
@@ -746,7 +746,7 @@
         {
             "ev": "EV_B442A28B7B6A",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.25
         },
@@ -830,7 +830,7 @@
         {
             "ev": "EV_923C2B430EC4",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.1667
         },
@@ -914,7 +914,7 @@
         {
             "ev": "EV_E9C84666ACDC",
             "n": 10,
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
             "peso": 0.1,
             "cumpl": 0.0833
         },
@@ -1378,7 +1378,7 @@
         {
             "ev": "EV_DA67A829EECA",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "9. N/A",
             "nota": 0.0,
@@ -1387,7 +1387,7 @@
         {
             "ev": "EV_DA67A829EECA",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "3. N.A",
             "nota": 0.0,
@@ -1396,7 +1396,7 @@
         {
             "ev": "EV_DA67A829EECA",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "No",
             "nota": 0.0,
@@ -1891,7 +1891,7 @@
         {
             "ev": "EV_32F32CC86AD6",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "1. Trayectoria / años en el mercado.",
             "nota": 0.25,
@@ -1900,7 +1900,7 @@
         {
             "ev": "EV_32F32CC86AD6",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "3. N.A",
             "nota": 0.0,
@@ -1909,7 +1909,7 @@
         {
             "ev": "EV_32F32CC86AD6",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "Parcial",
             "nota": 0.5,
@@ -2404,7 +2404,7 @@
         {
             "ev": "EV_595466383527",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "1. Trayectoria / años en el mercado. | 2. Cobertura o red de tiendas. | 9. N/A",
             "nota": 0.25,
@@ -2413,7 +2413,7 @@
         {
             "ev": "EV_595466383527",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "3. N.A",
             "nota": 0.0,
@@ -2422,7 +2422,7 @@
         {
             "ev": "EV_595466383527",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "Parcial",
             "nota": 0.5,
@@ -2917,7 +2917,7 @@
         {
             "ev": "EV_19A457287833",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "1. Trayectoria / años en el mercado. | 2. Cobertura o red de tiendas. | 3. Servicio técnico. | 4. Disponibilidad de repuestos. | 5. Planes de financiamiento. | 7. Asesoría personalizada. | 8. Solidez empresarial.",
             "nota": 1.0,
@@ -2926,7 +2926,7 @@
         {
             "ev": "EV_19A457287833",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "2. Equilibrado entre venta y fidelización.",
             "nota": 1.0,
@@ -2935,7 +2935,7 @@
         {
             "ev": "EV_19A457287833",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "Parcial",
             "nota": 0.5,
@@ -3430,7 +3430,7 @@
         {
             "ev": "EV_0944BA00474B",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "1. Trayectoria / años en el mercado. | 8. Solidez empresarial. | 9. N/A",
             "nota": 0.25,
@@ -3439,7 +3439,7 @@
         {
             "ev": "EV_0944BA00474B",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "3. N.A",
             "nota": 0.0,
@@ -3448,7 +3448,7 @@
         {
             "ev": "EV_0944BA00474B",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "Parcial",
             "nota": 0.5,
@@ -3943,7 +3943,7 @@
         {
             "ev": "EV_C35B0D9F2C2D",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "1. Trayectoria / años en el mercado. | 3. Servicio técnico. | 4. Disponibilidad de repuestos. | 5. Planes de financiamiento. | 7. Asesoría personalizada. | 8. Solidez empresarial. | 9. N/A",
             "nota": 0.75,
@@ -3952,7 +3952,7 @@
         {
             "ev": "EV_C35B0D9F2C2D",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "1. Orientado al cierre inmediato de la venta.",
             "nota": 0.5,
@@ -3961,7 +3961,7 @@
         {
             "ev": "EV_C35B0D9F2C2D",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "Parcial",
             "nota": 0.5,
@@ -4456,7 +4456,7 @@
         {
             "ev": "EV_61FAB63C2835",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "3. Servicio técnico. | 5. Planes de financiamiento.",
             "nota": 0.25,
@@ -4465,7 +4465,7 @@
         {
             "ev": "EV_61FAB63C2835",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "1. Orientado al cierre inmediato de la venta.",
             "nota": 0.5,
@@ -4474,7 +4474,7 @@
         {
             "ev": "EV_61FAB63C2835",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "No",
             "nota": 0.0,
@@ -4969,7 +4969,7 @@
         {
             "ev": "EV_B442A28B7B6A",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "3. Servicio técnico. | 5. Planes de financiamiento.",
             "nota": 0.25,
@@ -4978,7 +4978,7 @@
         {
             "ev": "EV_B442A28B7B6A",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "1. Orientado al cierre inmediato de la venta.",
             "nota": 0.5,
@@ -4987,7 +4987,7 @@
         {
             "ev": "EV_B442A28B7B6A",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "No",
             "nota": 0.0,
@@ -5482,7 +5482,7 @@
         {
             "ev": "EV_923C2B430EC4",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "1. Trayectoria / años en el mercado. | 7. Asesoría personalizada. | 8. Solidez empresarial.",
             "nota": 0.5,
@@ -5491,7 +5491,7 @@
         {
             "ev": "EV_923C2B430EC4",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "3. N.A",
             "nota": 0.0,
@@ -5500,7 +5500,7 @@
         {
             "ev": "EV_923C2B430EC4",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "No",
             "nota": 0.0,
@@ -5995,7 +5995,7 @@
         {
             "ev": "EV_E9C84666ACDC",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Qué atributos o fortalezas de Maquinarias (más allá de la marca del vehículo) mencionó el vendedor espontáneamente? (Marque todas las que correspondan) 1 - 2 (25%) 3 - 4 (50%) 5 - 6 (75%) 7 - 8 (100%)",
             "resp": "1. Trayectoria / años en el mercado.",
             "nota": 0.25,
@@ -6004,7 +6004,7 @@
         {
             "ev": "EV_E9C84666ACDC",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Transmitió una relación de largo plazo o una venta puntual? Se considera una relación de largo plazo cuando el asesor promueve el vínculo con el cliente más allá de la compra, mencionando el servicio postventa, seguimiento o beneficios futuros.",
             "resp": "3. N.A",
             "nota": 0.0,
@@ -6013,7 +6013,7 @@
         {
             "ev": "EV_E9C84666ACDC",
             "ind": 10,
-            "indicador": "Valor marca Maquinarias",
+            "indicador": "Valor marca",
             "q": "¿Considera que el asesor logró diferenciar a Maquinarias de otros concesionarios?",
             "resp": "No",
             "nota": 0.0,

@@ -40,14 +40,7 @@ export function SharedFilterBar() {
     if (patch.indicador !== undefined) {
       setFilter("indicador", patch.indicador);
       if (!patch.indicador || patch.indicador.length !== 1) clearIndicador();
-      else {
-        const value = patch.indicador[0];
-        if (value) {
-          const n = Number(value);
-          if (Number.isFinite(n)) openIndicador(`IND_${String(n).padStart(2, "0")}`);
-          else openIndicador(value);
-        }
-      }
+      else if (patch.indicador[0]) openIndicador(patch.indicador[0]);
     }
   };
 

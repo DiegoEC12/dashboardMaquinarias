@@ -60,7 +60,8 @@
         },
         {
             "id": "IND_10",
-            "nombre": "Valor marca Maquinarias",
+            "nombre": "Valor marca",
+
             "peso": 0.1,
             "orden": 10
         },

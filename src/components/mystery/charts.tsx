@@ -97,10 +97,10 @@ export function DumbbellChart({
     <div className="flex flex-col">
       <div className="mb-2 flex items-center gap-4 pl-52.5 text-[11px] font-semibold text-muted-foreground max-md:pl-0">
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-primary" /> Maquinarias
+          <span className="h-2.5 w-2.5 rounded-full bg-black" /> Maquinarias
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-neutral-status" /> Competencia
+          <span className="h-2.5 w-2.5 rounded-full bg-gray-500" /> Competencia
         </span>
       </div>
       {rows.map((r) => {
@@ -139,13 +139,19 @@ export function DumbbellChart({
               )}
               {maqP !== null && (
                 <span
-                  className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card bg-primary shadow-sm"
+                  className={cn(
+                    "absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card shadow-sm",
+                    "bg-black"
+                  )}
                   style={{ left: `${maqP}%` }}
                 />
               )}
               {compP !== null && (
                 <span
-                  className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card bg-neutral-status shadow-sm"
+                  className={cn(
+                    "absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card shadow-sm",
+                    "bg-gray-500"
+                  )}
                   style={{ left: `${compP}%` }}
                 />
               )}
@@ -381,7 +387,10 @@ export function Heatmap({
                   return (
                     <td key={c.id}>
                       <button
-                        onClick={() => onColSelect?.(c.id)}
+                        onClick={() => {
+                          onRowSelect?.(r.key);
+                          onColSelect?.(c.id);
+                        }}
                         onMouseEnter={() =>
                           setHovered({
                             rowLabel: r.label,

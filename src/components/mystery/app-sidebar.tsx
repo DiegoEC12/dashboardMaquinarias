@@ -87,6 +87,8 @@ export function AppSidebar() {
 
   const handleLogout = () => {
     setIsLoggingOut(true);
+    // Show a brief message to the user
+    alert("Cerrando sesión...");
     setTimeout(() => {
       window.location.href = "https://factor-iq.com/pages/servicio_nube.html";
     }, 1000);
