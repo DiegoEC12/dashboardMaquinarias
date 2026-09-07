@@ -39,8 +39,6 @@ export function SharedFilterBar() {
     if (patch.tipoEvaluacion !== undefined) setFilter("tipoEvaluacion", patch.tipoEvaluacion);
     if (patch.indicador !== undefined) {
       setFilter("indicador", patch.indicador);
-      if (!patch.indicador || patch.indicador.length !== 1) clearIndicador();
-      else if (patch.indicador[0]) openIndicador(patch.indicador[0]);
     }
   };
 

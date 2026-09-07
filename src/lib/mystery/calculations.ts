@@ -148,8 +148,12 @@ function ids(evals: Evaluation[]): string[] {
   return evals.map((e) => e.id);
 }
 
-export function calculateWeightedScore(evalIds: string[]): number | null {
-  return weightedFromRows(dataset.indicatorResults.filter((r) => evalIds.includes(r.idEvaluacion)));
+export function calculateWeightedScore(evalIds: string[], indicatorIds?: string[] | null): number | null {
+  let rows = dataset.indicatorResults.filter((r) => evalIds.includes(r.idEvaluacion));
+  if (indicatorIds?.length) {
+    rows = rows.filter((r) => indicatorIds.includes(r.idIndicador));
+  }
+  return weightedFromRows(rows);
 }
 
 function weightedFromRows(rows: IndicatorResult[]): number | null {
@@ -196,9 +200,9 @@ export interface BenchmarkResult {
   nCompetencia: number;
 }
 
-export function calculateBenchmark(scopes: Scopes): BenchmarkResult {
-  const m = calculateWeightedScore(ids(scopes.maquinarias));
-  const c = calculateWeightedScore(ids(scopes.competencia));
+export function calculateBenchmark(scopes: Scopes, indicatorIds?: string[] | null): BenchmarkResult {
+  const m = calculateWeightedScore(ids(scopes.maquinarias), indicatorIds);
+  const c = calculateWeightedScore(ids(scopes.competencia), indicatorIds);
   return {
     maquinarias: m,
     competencia: c,
@@ -344,6 +348,7 @@ export function groupScores(
   evals: Evaluation[],
   groupBy: (e: Evaluation) => { key: string; label: string; extra?: Partial<GroupScore> },
   reference: number | null,
+  indicatorIds?: string[] | null,
 ): GroupScore[] {
   type Acc = { label: string; extra: Partial<GroupScore> | undefined; ids: string[] };
   const groups = new Map<string, Acc>();
@@ -354,7 +359,7 @@ export function groupScores(
     groups.set(g.key, cur);
   }
   return [...groups.entries()].map(([key, g]) => {
-    const score = calculateWeightedScore(g.ids);
+    const score = calculateWeightedScore(g.ids, indicatorIds);
     return {
       key,
       label: g.label,

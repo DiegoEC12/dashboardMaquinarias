@@ -45,12 +45,17 @@ function IndicadoresPage() {
 
   const indicatorList = useMemo(() => {
     const evaluationIds = evs.map((evaluation) => evaluation.id);
-    return availableIndicators(evaluationIds).map((indicator) => ({
+    let indicators = availableIndicators(evaluationIds);
+    // Respect global indicator filter
+    if (filters.indicador?.length) {
+      indicators = indicators.filter((ind) => filters.indicador!.includes(ind.id));
+    }
+    return indicators.map((indicator) => ({
       ...indicator,
       n: indicator.orden,
       valor: indicatorScore(evaluationIds, indicator.id) ?? 0,
     }));
-  }, [evs]);
+  }, [evs, filters.indicador]);
 
   const localScores = useMemo(() => {
     const scores = new Map<string, number | null>();
@@ -312,22 +317,34 @@ function IndicadoresPage() {
 type SummaryQuestion = { q: string; score: number };
 
 function QuestionSummary({ title, questions }: { title: string; questions: SummaryQuestion[] }) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   return (
     <div>
       <div className="text-xs text-muted-foreground">{title}</div>
       {questions.length ? (
-        <ul className="mt-2 space-y-2">
-          {questions.map((question, index) => (
-            <li key={`${question.q}-${index}`} className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="truncate text-sm">{question.q}</div>
-                <div className="text-xs text-muted-foreground">Resultado de la pregunta</div>
-              </div>
-              <div className="shrink-0 text-sm font-semibold tabular-nums">
-                {Math.round(question.score)}%
-              </div>
-            </li>
-          ))}
+        <ul className="mt-2 space-y-1">
+          {questions.map((question, index) => {
+            const isExpanded = expandedIndex === index;
+            return (
+              <li key={`${question.q}-${index}`}>
+                <button
+                  type="button"
+                  onClick={() => setExpandedIndex(isExpanded ? null : index)}
+                  className="flex w-full items-start justify-between gap-3 rounded-md px-2 py-1.5 text-left hover:bg-muted/60 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className={cn("text-sm", isExpanded ? "whitespace-normal" : "line-clamp-1")}>
+                      {question.q}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Resultado de la pregunta</div>
+                  </div>
+                  <div className="shrink-0 text-sm font-semibold tabular-nums">
+                    {Math.round(question.score)}%
+                  </div>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <p className="mt-2 text-sm text-muted-foreground">No hay preguntas disponibles.</p>

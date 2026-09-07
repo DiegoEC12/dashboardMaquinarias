@@ -61,7 +61,8 @@ function ConcesionariasPage() {
 
   void dataVersion;
   const scopes = getScopes(filters);
-  const benchmark = useMemo(() => calculateBenchmark(scopes), [scopes]);
+  const indicatorFilter = filters.indicador;
+  const benchmark = useMemo(() => calculateBenchmark(scopes, indicatorFilter), [scopes, indicatorFilter]);
   const reference = benchmark.competencia;
 
   const level: Level = !drill.concesionaria
@@ -94,11 +95,12 @@ function ConcesionariasPage() {
               extra: { tipoEmpresa: e.tipoEmpresa },
             }),
             reference,
+            indicatorFilter,
           )
         : level === "marca"
-          ? groupScores(drilled, (e) => ({ key: e.marca, label: e.marca }), reference)
+          ? groupScores(drilled, (e) => ({ key: e.marca, label: e.marca }), reference, indicatorFilter)
           : level === "ubicacion"
-            ? groupScores(drilled, (e) => ({ key: e.ubicacion, label: e.ubicacion }), reference)
+            ? groupScores(drilled, (e) => ({ key: e.ubicacion, label: e.ubicacion }), reference, indicatorFilter)
             : groupScores(
                 drilled,
                 (e) => ({
@@ -107,6 +109,7 @@ function ConcesionariasPage() {
                   extra: { marca: e.marca, ubicacion: e.ubicacion },
                 }),
                 reference,
+                indicatorFilter,
               );
     const val = (r: GroupScore) => {
       switch (sort) {
@@ -121,7 +124,7 @@ function ConcesionariasPage() {
       }
     };
     return rows.sort((a, b) => val(b) - val(a));
-  }, [drilled, level, reference, sort]);
+  }, [drilled, level, reference, sort, indicatorFilter]);
 
   const visibleRanking = useMemo(() => ranking, [ranking]);
 
@@ -139,11 +142,11 @@ function ConcesionariasPage() {
       map.set(key, cur);
     }
     return [...map.values()].sort((a, b) => {
-      const sa = calculateWeightedScore(a.ids) ?? 0;
-      const sb = calculateWeightedScore(b.ids) ?? 0;
+      const sa = calculateWeightedScore(a.ids, indicatorFilter) ?? 0;
+      const sb = calculateWeightedScore(b.ids, indicatorFilter) ?? 0;
       return sb - sa;
     });
-  }, [drilled]);
+  }, [drilled, indicatorFilter]);
 
   const heatColumns = useMemo(() => {
     return availableIndicators(scopes.selection.map((evaluation) => evaluation.id)).map(
@@ -204,12 +207,16 @@ function ConcesionariasPage() {
 
   const selectedIndicators = useMemo(() => {
     const ids = selectedEvals.map((e) => e.id);
-    return availableIndicators(scopes.selection.map((evaluation) => evaluation.id)).map((i) => ({
+    let indicators = availableIndicators(scopes.selection.map((evaluation) => evaluation.id));
+    if (indicatorFilter?.length) {
+      indicators = indicators.filter((i) => indicatorFilter.includes(i.id));
+    }
+    return indicators.map((i) => ({
       label: i.nombre,
       value: indicatorScore(ids, i.id),
       n: ids.length,
     }));
-  }, [selectedEvals, scopes.selection]);
+  }, [selectedEvals, scopes.selection, indicatorFilter]);
 
   function handleRankingSelect(key: string) {
     setSelectedKey(key === selectedKey ? null : key);

@@ -47,14 +47,7 @@ export function CompactFilterControls() {
             label="Indicador"
             values={filters.indicador}
             options={options.indicadores}
-            onChange={(values) => {
-              setFilter("indicador", values);
-              if (!values || values.length !== 1) {
-                clearIndicador();
-              } else {
-                openIndicador(values[0]);
-              }
-            }}
+            onChange={(values) => setFilter("indicador", values)}
           />
           <MultiFilterSelect
             label="Tipo de evaluación"
